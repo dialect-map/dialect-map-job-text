@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: CI [Users]
 
 on:
   push:
@@ -16,6 +16,7 @@ jobs:
 
   check:
     needs: []
+    if: ${{ endsWith(github.actor, '[bot]') == false }}
     runs-on: ubuntu-latest
     steps:
     - name: "Set up GitHub Actions"
@@ -42,6 +43,7 @@ jobs:
 
   test:
     needs: [check]
+    if: ${{ endsWith(github.actor, '[bot]') == false }}
     runs-on: ubuntu-latest
     strategy:
       matrix:

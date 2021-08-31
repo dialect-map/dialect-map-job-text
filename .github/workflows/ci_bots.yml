@@ -1,0 +1,71 @@
+name: CI [Bots]
+
+on:
+  ### NOTE:
+  ###
+  ### GitHub dependabot cannot access secrets unless workflows are triggered on
+  ### the `pull_request_target` event or "workflows from fork PRs" are allowed (unsecure).
+  ###
+  ### Discussion: https://github.community/t/dependabot-doesnt-see-github-actions-secrets/167104
+  ### Reference: https://github.com/dependabot/dependabot-core/issues/3253#issuecomment-797125425
+  ###
+  pull_request_target:
+
+jobs:
+
+  check:
+    needs: []
+    if: ${{ endsWith(github.actor, '[bot]') == true }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: "Set up GitHub Actions"
+      uses: actions/checkout@v2
+    - name: "Set up Python 3.7"
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: "Set up private packages SSH keys"
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: |
+          ${{ secrets.DM_IO_SSH_KEY }}
+          ${{ secrets.DM_SCHEMAS_SSH_KEY }}
+    - name: "Install Python dependencies"
+      run: |
+        pip install --no-cache-dir --upgrade pip setuptools wheel
+        pip install --no-cache-dir --requirement requirements.txt
+        pip install --no-cache-dir --requirement requirements-dev.txt
+        pip list
+    - name: "Check code format"
+      run: |
+        make check
+
+  test:
+    needs: [check]
+    if: ${{ endsWith(github.actor, '[bot]') == true }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+    steps:
+    - name: "Set up GitHub Actions"
+      uses: actions/checkout@v2
+    - name: "Set up Python ${{ matrix.python-version }}"
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: "Set up private packages SSH keys"
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: |
+          ${{ secrets.DM_IO_SSH_KEY }}
+          ${{ secrets.DM_SCHEMAS_SSH_KEY }}
+    - name: "Install Python dependencies"
+      run: |
+        pip install --no-cache-dir --upgrade pip setuptools wheel
+        pip install --no-cache-dir --requirement requirements.txt
+        pip install --no-cache-dir --requirement requirements-dev.txt
+        pip list
+    - name: "Test with pytest"
+      run: |
+        make test
