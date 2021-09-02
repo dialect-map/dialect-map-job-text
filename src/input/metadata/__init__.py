@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .api import ApiMetadataSource
 from .base import BaseMetadataSource
+
+from .api import ApiMetadataSource
+from .file import FileMetadataSource
