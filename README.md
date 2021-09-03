@@ -1,5 +1,11 @@
 # Dialect map: text job
 
+[![CI/CD Status][ci-status-badge]][ci-status-link]
+[![Coverage Status][cov-status-badge]][cov-status-link]
+[![MIT license][mit-license-badge]][mit-license-link]
+[![Code style][code-style-badge]][code-style-link]
+
+
 ### About
 This repository contains the PDF to TXT transformation job that is run upon any new ArXiv paper.
 In addition, it can query the official ArXiv API to retrieve papers metadata.
@@ -32,6 +38,15 @@ Project testing is performed using [Pytest][web-pytest]. In order to run the tes
 make test
 ```
 
+
+[ci-status-badge]: https://github.com/dialect-map/dialect-map-job-text/actions/workflows/ci.yml/badge.svg?branch=main
+[ci-status-link]: https://github.com/dialect-map/dialect-map-job-text/actions/workflows/ci.yml?query=branch%3Amain
+[code-style-badge]: https://img.shields.io/badge/code%20style-black-000000.svg
+[code-style-link]: https://github.com/psf/black
+[cov-status-badge]: https://codecov.io/gh/dialect-map/dialect-map-job-text/branch/main/graph/badge.svg
+[cov-status-link]: https://codecov.io/gh/dialect-map/dialect-map-job-text
+[mit-license-badge]: https://img.shields.io/badge/License-MIT-blue.svg
+[mit-license-link]: https://github.com/dialect-map/dialect-map-job-text/blob/main/LICENSE
 
 [dialect-map-api]: https://github.com/dialect-map/dialect-map-private-api
 [dialect-map-io]: https://github.com/dialect-map/dialect-map-io
