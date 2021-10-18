@@ -2,45 +2,35 @@
 
 from typing import List
 
-from dialect_map_io import JSONDataParser
+from dialect_map_io import LocalDataFile
 
 from .base import BaseMetadataSource
 from ...models import ArxivMetadata
+from ...parsers import JSONMetadataParser
 
 
 class FileMetadataSource(BaseMetadataSource):
     """Metadata source for the ArXiv JSON file"""
 
-    def __init__(self, file_path: str, parser: JSONDataParser):
+    def __init__(self, file: LocalDataFile, parser: JSONMetadataParser):
         """
         Initializes the metadata operator with a given JSON parser
-        :param file_path: path to the metadata JSON file
+        :param file: local data file with the metadata to iterate on
         :param parser: object to parse the metadata entries
         """
 
         self.parser = parser
-        self.entries = self._parse_metadata_file(file_path)
+        self.entries = self._build_metadata_file(file)
 
-    def _parse_metadata_file(self, file_path: str) -> dict:
+    @staticmethod
+    def _build_metadata_file(file: LocalDataFile) -> dict:
         """
-        Parses the provided metadata file building a ID - JSON dictionary
-        :param file_path: path to the metadata JSON file
+        Builds a ID - JSON dictionary after iterating the provided metadata file
+        :param file: local data file with the metadata to iterate on
         :return: ID - JSON dictionary
         """
 
-        entries = {}
-
-        with open(file_path) as file:
-
-            for line in file.readlines():
-                json = self.parser.parse_str(line)
-                assert isinstance(json, dict)
-
-                key = json["id"]
-                val = json
-                entries[key] = val
-
-        return entries
+        return {json["id"]: json for json in file.iter_items()}
 
     def get_metadata(self, paper_id: str) -> List[ArxivMetadata]:
         """
@@ -49,4 +39,7 @@ class FileMetadataSource(BaseMetadataSource):
         :return: ArXiv paper versions metadata
         """
 
-        pass
+        json = self.entries.get(paper_id)
+        meta = self.parser.parse_body(json)
+
+        return meta
