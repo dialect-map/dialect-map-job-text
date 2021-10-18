@@ -2,10 +2,10 @@
 
 from typing import List
 
-from dialect_map_io import ArxivFeedEntry
 from dialect_map_io import JSONDataParser
 
 from .base import BaseMetadataSource
+from ...models import ArxivMetadata
 
 
 class FileMetadataSource(BaseMetadataSource):
@@ -42,7 +42,7 @@ class FileMetadataSource(BaseMetadataSource):
 
         return entries
 
-    def get_metadata(self, paper_id: str) -> List[ArxivFeedEntry]:
+    def get_metadata(self, paper_id: str) -> List[ArxivMetadata]:
         """
         Retrieves the complete metadata of the multiple ArXiv paper versions
         :param paper_id: ArXiv paper ID
