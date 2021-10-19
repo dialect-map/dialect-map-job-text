@@ -54,6 +54,22 @@ class JSONMetadataParser(BaseMetadataParser):
 
         return re.sub(r"\s\s+", " ", long_string).strip()
 
+    @staticmethod
+    def _parse_authors(author_entries: list) -> List[str]:
+        """
+        Parses and extracts an author complete name from each author entry
+        :param author_entries: list of author info expressed as lists of strings.
+        :return: author complete names
+        """
+
+        author_first_names = (entry[0] for entry in author_entries)
+        author_last_names = (entry[1] for entry in author_entries)
+
+        return [
+            f"{first_name} {last_name}"
+            for first_name, last_name in zip(author_first_names, author_last_names)
+        ]
+
     def _extract_date(self, date: str) -> datetime:
         """
         Parses a date string to a UTC datetime object
@@ -120,8 +136,7 @@ class JSONMetadataParser(BaseMetadataParser):
             categories = entry["categories"].split()
             created = self._extract_date(version["created"]) if created is None else created
             updated = self._extract_date(version["created"])
-            authors = [self._parse_string(" ".join(author)) for author in entry["authors_parsed"]]
-            authors = [ArxivMetadataAuthor(author) for author in authors]
+            authors = [ArxivMetadataAuthor(a) for a in self._parse_authors(entry["authors_parsed"])]
             links = []  # type: ignore
 
             paper = ArxivMetadata(

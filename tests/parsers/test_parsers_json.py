@@ -182,5 +182,5 @@ def test_json_authors_parse(
     ]
 
     assert json_entry_3.paper_authors == [
-        ArxivMetadataAuthor("Hasegawa Yasumasa Himeji Institute of Technology"),
+        ArxivMetadataAuthor("Hasegawa Yasumasa"),
     ]
