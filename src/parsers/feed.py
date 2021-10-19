@@ -57,7 +57,7 @@ class FeedMetadataParser(BaseMetadataParser):
         :return: trimmed string
         """
 
-        return re.sub(r"\s\s+", " ", long_string).strip()
+        return re.sub(r"\s\s+", " ", long_string)
 
     @staticmethod
     def _parse_links(link_entries: list) -> List[str]:

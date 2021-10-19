@@ -52,7 +52,7 @@ class JSONMetadataParser(BaseMetadataParser):
         :return: trimmed string
         """
 
-        return re.sub(r"\s\s+", " ", long_string).strip()
+        return re.sub(r"\s\s+", " ", long_string)
 
     @staticmethod
     def _parse_authors(author_entries: list) -> List[str]:
