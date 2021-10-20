@@ -47,7 +47,7 @@ class ArxivMetadata:
     """
 
     paper_id: str
-    paper_rev: str
+    paper_rev: int
     paper_title: str
     paper_description: str
     paper_category: str
