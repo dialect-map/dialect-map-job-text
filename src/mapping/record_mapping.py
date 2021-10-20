@@ -9,8 +9,8 @@ from dialect_map_schemas import PaperAuthorSchema
 from ..models import ArxivMetadata
 
 
-class ArxivFeedConverter:
-    """ArXiv feed to Dialect map records converter"""
+class ArxivMetadataMapper:
+    """ArXiv metadata to Dialect map records mapper"""
 
     @staticmethod
     def get_paper_data(metadata: ArxivMetadata) -> dict:

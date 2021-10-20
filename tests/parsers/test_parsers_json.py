@@ -74,17 +74,17 @@ def test_json_entries_parse(
     """
 
     assert json_entry_1.paper_id == "0704.0001"
-    assert json_entry_1.paper_rev == "v1"
+    assert json_entry_1.paper_rev == 1
     assert json_entry_1.paper_doi == "10.1103/PhysRevD.76.013009"
     assert json_entry_1.paper_category == "hep-ph"
 
     assert json_entry_2.paper_id == "0704.0002"
-    assert json_entry_2.paper_rev == "v1"
+    assert json_entry_2.paper_rev == 1
     assert json_entry_2.paper_doi == ""
     assert json_entry_2.paper_category == "math.CO"
 
     assert json_entry_3.paper_id == "supr-con/9609003"
-    assert json_entry_3.paper_rev == "v1"
+    assert json_entry_3.paper_rev == 1
     assert json_entry_3.paper_doi == "10.1143/JPSJ.65.3131"
     assert json_entry_3.paper_category == "supr-con"
 

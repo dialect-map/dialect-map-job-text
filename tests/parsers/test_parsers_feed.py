@@ -76,7 +76,7 @@ def test_feed_entries_parse(feed_entry: ArxivMetadata):
     """
 
     assert feed_entry.paper_id == "hep-ex/0307015"
-    assert feed_entry.paper_rev == "v1"
+    assert feed_entry.paper_rev == 1
     assert feed_entry.paper_doi == "10.1140/epjc/s2003-01326-x"
     assert feed_entry.paper_category == "hep-ex"
     assert feed_entry.paper_title == (
