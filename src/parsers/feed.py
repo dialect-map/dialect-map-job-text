@@ -31,6 +31,7 @@ class FeedMetadataParser(BaseMetadataParser):
 
         self.entry_id_prefix = re.compile(r"http://arxiv.org/abs/")
         self.entry_id_suffix = re.compile(r"v\d+")
+        self.entry_rev_regex = re.compile(r"v(\d+)")
 
     @staticmethod
     def _parse_date(date_string: str) -> datetime:
@@ -81,16 +82,17 @@ class FeedMetadataParser(BaseMetadataParser):
         id = re.sub(self.entry_id_suffix, "", id, count=1)
         return id
 
-    def _extract_rev(self, entry_id: str) -> str:
+    def _extract_rev(self, entry_id: str) -> int:
         """
         Extract the paper revision from the value found on the <entry>.<id> field
         :param entry_id: value found on <entry>.<id>
         :return: paper revision
         """
 
-        rev = re.search(self.entry_id_suffix, entry_id)
-        rev = rev[0] if rev is not None else "1"
-        return rev
+        rev = re.search(self.entry_rev_regex, entry_id)
+        rev = rev.group(1) if rev is not None else 1
+
+        return int(rev)
 
     def _extract_doi(self, entry: FeedParserDict) -> str:
         """

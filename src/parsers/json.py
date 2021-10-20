@@ -24,8 +24,8 @@ class JSONMetadataParser(BaseMetadataParser):
     def __init__(self):
         """Initializes the Arxiv json metadata parser object"""
 
-        self.dates_format = "%a, %d %b %Y %H:%M:%S %Z"
-        self.version_regex = re.compile(r"v\d+")
+        self.entry_dt_format = "%a, %d %b %Y %H:%M:%S %Z"
+        self.entry_rev_regex = re.compile(r"v(\d+)")
 
     @staticmethod
     def _parse_date(date_string: str) -> datetime:
@@ -82,7 +82,7 @@ class JSONMetadataParser(BaseMetadataParser):
         tz = date[-3:].strip()
 
         # Pruning the timezone out of the format
-        fmt = self.dates_format[:-3]
+        fmt = self.entry_dt_format[:-3]
 
         off_date = datetime.strptime(dt, fmt)
         off_date = off_date.replace(tzinfo=pytz.timezone(tz))
@@ -90,16 +90,17 @@ class JSONMetadataParser(BaseMetadataParser):
 
         return utc_date
 
-    def _extract_rev(self, version: str) -> str:
+    def _extract_rev(self, version: str) -> int:
         """
         Extract the paper revision from the value found on the versions field
         :param version: value found in the versions field
         :return: paper revision
         """
 
-        rev = re.search(self.version_regex, version)
-        rev = rev[0] if rev is not None else "1"
-        return rev
+        rev = re.search(self.entry_rev_regex, version)
+        rev = rev.group(1) if rev is not None else 1
+
+        return int(rev)
 
     def _extract_doi(self, entry: dict) -> str:
         """
