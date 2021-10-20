@@ -11,7 +11,6 @@ from typing import List
 from urllib import parse
 
 from .base import BaseMetadataParser
-from ..models import ArxivFeedHeader
 from ..models import ArxivMetadata
 from ..models import ArxivMetadataAuthor
 from ..models import ArxivMetadataLink
@@ -109,21 +108,6 @@ class FeedMetadataParser(BaseMetadataParser):
             logger.info(f"Paper {paper_id} does not specify a DOI")
 
         return paper_doi
-
-    def parse_header(self, feed: str) -> ArxivFeedHeader:
-        """
-        Parses the header fields of a given feed result
-        :param feed: string with the feed result
-        :return: top-level fields data object
-        """
-
-        parsed = feed_parse(feed)
-
-        return ArxivFeedHeader(
-            query_id=parsed.feed.id,
-            query_url=self._parse_links(parsed.feed.links)[0],
-            results_ts=self._parse_date(parsed.feed.updated),
-        )
 
     def parse_body(self, feed: str) -> List[ArxivMetadata]:
         """

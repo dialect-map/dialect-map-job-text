@@ -118,11 +118,6 @@ class JSONMetadataParser(BaseMetadataParser):
 
         return paper_doi
 
-    def parse_header(self, entry: dict) -> None:
-        """Metadata JSON has not header. Returns None"""
-
-        return None
-
     def parse_body(self, entry: dict) -> List[ArxivMetadata]:
         """
         Parses the metadata fields of a given metadata JSON entry

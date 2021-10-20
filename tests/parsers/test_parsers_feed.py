@@ -7,29 +7,12 @@ from datetime import time
 from datetime import timedelta
 from datetime import timezone
 
-from src.models import ArxivFeedHeader
 from src.models import ArxivMetadata
 from src.models import ArxivMetadataAuthor
 from src.models import ArxivMetadataLink
 from src.parsers import FeedMetadataParser
 
 from ..__paths import FEED_FOLDER
-
-
-@pytest.fixture(scope="module")
-def feed_header() -> ArxivFeedHeader:
-    """
-    Feed header object parsed from a sample Arxiv Atom feed
-    :return: feed header object
-    """
-
-    feed_parser = FeedMetadataParser()
-
-    feed_file = FEED_FOLDER.joinpath("arxiv_feed.xml")
-    feed_text = open(feed_file, "r").read()
-    feed_head = feed_parser.parse_header(feed_text)
-
-    return feed_head
 
 
 @pytest.fixture(scope="module")
@@ -46,27 +29,6 @@ def feed_entry() -> ArxivMetadata:
     feed_objs = feed_parser.parse_body(feed_text)
 
     return feed_objs[0]
-
-
-def test_feed_header_parse(feed_header: ArxivFeedHeader):
-    """
-    Tests the correct parsing of the Arxiv feed headers fields
-    :param feed_header: feed header object
-    """
-
-    assert feed_header.query_id == "http://arxiv.org/api/vBQMi2rCJvODLLmHWAdImdorN/8"
-    assert feed_header.query_url == (
-        "http://arxiv.org/api/query?search_query="
-        "&id_list=hep-ex/0307015"
-        "&start=0"
-        "&max_results=10"
-    )
-
-    assert feed_header.results_ts == datetime.combine(
-        date=date(2021, 3, 25),
-        time=time(00, 00, 00),
-        tzinfo=timezone(timedelta(hours=-4)),
-    )
 
 
 def test_feed_entries_parse(feed_entry: ArxivMetadata):
