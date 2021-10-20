@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from .corpus import ArxivCorpusOperator
+from .corpus import ArxivCorpusSource

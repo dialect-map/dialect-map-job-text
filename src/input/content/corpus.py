@@ -3,8 +3,8 @@
 from dialect_map_io import PDFTextParser
 
 
-class ArxivCorpusOperator:
-    """File corpus operator for the ArXiv PDFs"""
+class ArxivCorpusSource:
+    """File corpus source for the PDFs content"""
 
     def __init__(self, parser: PDFTextParser):
         """

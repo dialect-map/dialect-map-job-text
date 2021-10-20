@@ -10,7 +10,7 @@ from ...parsers import JSONMetadataParser
 
 
 class FileMetadataSource(BaseMetadataSource):
-    """Metadata source for the ArXiv JSON file"""
+    """JSON file source for the metadata information"""
 
     def __init__(self, file: LocalDataFile, parser: JSONMetadataParser):
         """

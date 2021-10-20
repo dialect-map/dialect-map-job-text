@@ -10,7 +10,7 @@ from ...parsers import FeedMetadataParser
 
 
 class ApiMetadataSource(BaseMetadataSource):
-    """Metadata operator for the ArXiv feed API"""
+    """ArXiv API source for the metadata information"""
 
     def __init__(self, api: ArxivInputAPI, parser: FeedMetadataParser):
         """
