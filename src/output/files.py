@@ -28,7 +28,7 @@ class LocalFileOperator:
         :return: complete file path
         """
 
-        return Path().joinpath(self.destination, file_name)
+        return Path(self.destination, file_name)
 
     def write_text(self, file_name: str, text: str) -> None:
         """
