@@ -2,33 +2,25 @@
 
 import click
 import logging
-import pathlib
 
 from click import Context
 from click import Path
 from typing import Optional
 
-from dialect_map_gcp.auth import OpenIDAuthenticator
-from dialect_map_io.data_input import ArxivInputAPI
-from dialect_map_io.data_input import LocalDataFile
-from dialect_map_io.data_output import RestOutputAPI
 from dialect_map_io.data_output import TextFileWriter
-from dialect_map_io.parsers import JSONDataParser
 from dialect_map_io.parsers import PDFTextParser
 
 from files import FileSystemIterator
 from input import ArxivCorpusSource
-from input import ApiMetadataSource
-from input import FileMetadataSource
 from logs import setup_logger
 from mapping import ArxivMetadataMapper
 from mapping import CATEGORY_MEMBER_ROUTE
 from mapping import PAPER_AUTHOR_ROUTE
 from mapping import PAPER_ROUTE
-from parsers import FeedMetadataParser
-from parsers import JSONMetadataParser
-from output import LocalFileOperator
 from output import DialectMapOperator
+from output import LocalFileOperator
+from utils import init_api_operator
+from utils import init_metadata_sources
 
 logger = logging.getLogger()
 
@@ -124,48 +116,21 @@ def text_job(
     :param output_files_path:
     :param metadata_file_path:
     :param gcp_key_path:
-    :return:
     """
 
     params = context.ensure_object(dict)
     api_url = params["API_URL"]
 
-    # Initialize metadata parsing objects
-    metadata_mapper = ArxivMetadataMapper()
-    metadata_feed_parser = FeedMetadataParser()
-    metadata_json_parser = JSONMetadataParser()
-
-    # Initialize file iterator and data parsing objects
+    # Initialize file iterator and API controller
     files_iterator = FileSystemIterator(input_files_path, ".pdf")
-    json_parser = JSONDataParser()
-    pdf_parser = PDFTextParser()
-    pdf_reader = ArxivCorpusSource(pdf_parser)
+    api_controller = init_api_operator(api_url, gcp_key_path)
 
-    # Initialize target API operator
-    api_auth = OpenIDAuthenticator(gcp_key_path, api_url)
-    api_conn = RestOutputAPI(api_url, api_auth)
-    private_api = DialectMapOperator(api_conn)
+    # Initialize the metadata mapper and sources
+    metadata_mapper = ArxivMetadataMapper()
+    metadata_sources = init_metadata_sources(metadata_file_path)
 
-    # Initialize the metadata sources (order matters)
-    metadata_sources = [
-        FileMetadataSource(
-            LocalDataFile(metadata_file_path, json_parser),
-            metadata_json_parser,
-        ),
-        ApiMetadataSource(
-            ArxivInputAPI("https://export.arxiv.org/api"),
-            metadata_feed_parser,
-        ),
-    ]
-
+    # Iterate on all files within the provided input path
     for file_path in files_iterator.iter_paths():
-
-        # Extract output path
-        path_diff = files_iterator.get_path_diff(input_files_path, file_path)
-        file_name = files_iterator.get_file_name(file_path)
-        output_path = pathlib.Path(*[output_files_path, path_diff])
-
-        # Extract ID from the path
         paper_id = files_iterator.get_file_name(file_path)
 
         # Get paper metadata
@@ -177,24 +142,56 @@ def text_job(
             logger.warning(f"Could not find metadata for paper: {paper_id}")
             continue
 
-        # Initialize TXT file writer
-        txt_writer = LocalFileOperator(output_path, TextFileWriter())
+        # Extract output path
+        path_diff = files_iterator.get_path_diff(input_files_path, file_path)
+        file_name = files_iterator.get_file_name(file_path)
+        output_path = f"{output_files_path}/{path_diff}"
 
         # Save paper contents
-        txt_content = pdf_reader.extract_txt(file_path)
-        txt_writer.write_text(file_name, txt_content)
+        write_contents(file_path, file_name, output_path)
 
         # Get records for each metadata entry
         for metadata_entry in metadata:
-            authors = metadata_mapper.get_paper_authors(metadata_entry)
-            membership = metadata_mapper.get_paper_membership(metadata_entry)
-            paper_info = metadata_mapper.get_paper_data(metadata_entry)
+            dispatch_record(api_controller, metadata_mapper, metadata_entry)
 
-            # Send data (order matters)
-            private_api.create_record(PAPER_ROUTE, paper_info)
-            private_api.create_record(CATEGORY_MEMBER_ROUTE, membership)
-            for author in authors:
-                private_api.create_record(PAPER_AUTHOR_ROUTE, author)
+
+def write_contents(file_path: str, file_name: str, output_path: str) -> None:
+    """
+    Extracts and saves the text content of a PDF into the desired output path
+    :param file_path: path to the PDF file
+    :param file_name: name of the PDF file
+    :param output_path: path to store the TXT output
+    """
+
+    pdf_parser = PDFTextParser()
+    pdf_reader = ArxivCorpusSource(pdf_parser)
+
+    # Initialize TXT file writer
+    txt_writer = LocalFileOperator(output_path, TextFileWriter())
+
+    # Save paper contents
+    txt_content = pdf_reader.extract_txt(file_path)
+    txt_writer.write_text(file_name, txt_content)
+
+
+def dispatch_record(api: DialectMapOperator, mapper: ArxivMetadataMapper, entry) -> None:
+    """
+    Dispatch metadata entry records using the provided API operator
+    :param api: Dialect map API operator
+    :param mapper: Dialect map schema mapper
+    :param entry: metadata entry to parse
+    """
+
+    authors = mapper.get_paper_authors(entry)
+    membership = mapper.get_paper_membership(entry)
+    paper_info = mapper.get_paper_data(entry)
+
+    # Send data (order matters)
+    api.create_record(PAPER_ROUTE, paper_info)
+    api.create_record(CATEGORY_MEMBER_ROUTE, membership)
+
+    for author in authors:
+        api.create_record(PAPER_AUTHOR_ROUTE, author)
 
 
 if __name__ == "__main__":
