@@ -4,7 +4,6 @@ import pytest
 from datetime import date
 from datetime import datetime
 from datetime import time
-from datetime import timedelta
 from datetime import timezone
 
 from src.models import ArxivMetadata
