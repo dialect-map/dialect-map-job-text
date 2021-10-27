@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import glob
+import os
 
 from pathlib import Path
 from typing import Generator
@@ -40,6 +41,28 @@ class FileSystemIterator:
         """
 
         return Path(path).parts[node_index]
+
+    @staticmethod
+    def get_path_diff(path_a: str, path_b: str) -> Path:
+        """
+        Extracts the tail difference between a path and one of its sub-paths
+        :param path_a: First path / sub-path to consider
+        :param path_b: Second path / sub-path to consider
+        :return: tail difference path
+        """
+
+        if not (path_a in path_b or path_b in path_a):
+            raise ValueError("Compared paths must have some common sub-path")
+
+        common_path_str = os.path.commonpath([path_a, path_b])
+        common_path_obj = Path(common_path_str)
+        common_path_len = len(common_path_obj.parts)
+
+        path_a_parts = Path(path_a).parts
+        path_b_parts = Path(path_b).parts
+        longest_path = max([path_a_parts, path_b_parts], key=len)
+
+        return Path(*longest_path[common_path_len:])
 
     def all_paths(self) -> List[str]:
         """
