@@ -27,10 +27,10 @@ class ArxivMetadataMapper:
                 "arxiv_rev": metadata.paper_rev,
                 "title": metadata.paper_title,
                 "doi_id": metadata.paper_doi,
-                "revision_date": metadata.paper_updated_at.date(),
-                "submission_date": metadata.paper_created_at.date(),
-                "created_at": metadata.paper_created_at,
-                "updated_at": metadata.paper_updated_at,
+                "revision_date": metadata.paper_updated_at.date().isoformat(),
+                "submission_date": metadata.paper_created_at.date().isoformat(),
+                "created_at": metadata.paper_created_at.isoformat(),
+                "updated_at": metadata.paper_updated_at.isoformat(),
             }
         )
 
@@ -47,7 +47,7 @@ class ArxivMetadataMapper:
         shared = {
             "arxiv_id": metadata.paper_id,
             "arxiv_rev": metadata.paper_rev,
-            "created_at": metadata.paper_created_at,
+            "created_at": metadata.paper_created_at.isoformat(),
         }
 
         schemas = PaperAuthorSchema(many=True)
@@ -70,7 +70,7 @@ class ArxivMetadataMapper:
                 "arxiv_id": metadata.paper_id,
                 "arxiv_rev": metadata.paper_rev,
                 "category_id": metadata.paper_category,
-                "created_at": metadata.paper_created_at,
+                "created_at": metadata.paper_created_at.isoformat(),
             }
         )
 
