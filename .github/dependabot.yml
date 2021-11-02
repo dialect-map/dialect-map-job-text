@@ -12,7 +12,7 @@ updates:
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: pip
-    directory: "/"
+    directory: "/reqs"
     schedule:
       interval: weekly
     ignore:
