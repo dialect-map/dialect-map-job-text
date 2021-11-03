@@ -18,8 +18,7 @@ check:
 .PHONY: install-dev
 install-dev:
 	@echo "Installing Development packages"
-	@pip install -r requirements.txt
-	@pip install -r requirements-dev.txt
+	@pip install -r reqs/requirements-all.txt
 	@pre-commit install
 
 
