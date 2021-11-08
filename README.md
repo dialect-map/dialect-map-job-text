@@ -85,5 +85,6 @@ The command arguments are:
 [dialect-map-api]: https://github.com/dialect-map/dialect-map-private-api
 [dialect-map-io]: https://github.com/dialect-map/dialect-map-io
 [dialect-map-schemas]: https://github.com/dialect-map/dialect-map-schemas
+[main-module]: src/main.py
 [web-black]: https://black.readthedocs.io/en/stable/
 [web-pytest]: https://docs.pytest.org/en/latest/#
