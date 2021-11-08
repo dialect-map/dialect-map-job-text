@@ -10,15 +10,15 @@ from typing import Optional
 from dialect_map_io.data_output import TextFileWriter
 from dialect_map_io.parsers import PDFTextParser
 
-from files import FileSystemIterator
-from input import ArxivCorpusSource
+from job.files import FileSystemIterator
+from job.input import ArxivCorpusSource
+from job.mapping import ArxivMetadataMapper
+from job.mapping import CATEGORY_MEMBER_ROUTE
+from job.mapping import PAPER_AUTHOR_ROUTE
+from job.mapping import PAPER_ROUTE
+from job.output import DialectMapOperator
+from job.output import LocalFileOperator
 from logs import setup_logger
-from mapping import ArxivMetadataMapper
-from mapping import CATEGORY_MEMBER_ROUTE
-from mapping import PAPER_AUTHOR_ROUTE
-from mapping import PAPER_ROUTE
-from output import DialectMapOperator
-from output import LocalFileOperator
 from utils import init_api_operator
 from utils import init_metadata_sources
 
