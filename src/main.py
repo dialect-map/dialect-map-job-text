@@ -5,7 +5,6 @@ import logging
 
 from click import Context
 from click import Path
-from typing import Optional
 
 from dialect_map_io.data_output import TextFileWriter
 from dialect_map_io.parsers import PDFTextParser
@@ -89,6 +88,74 @@ def text_job(input_files_path: str, output_files_path: str):
         # Save paper contents
         txt_content = pdf_reader.extract_txt(file_path)
         txt_writer.write_text(file_name, txt_content)
+
+
+@main.command()
+@click.option(
+    "--input-files-path",
+    help="PDF input files local path",
+    required=True,
+    type=Path(
+        exists=True,
+        file_okay=False,
+        dir_okay=True,
+    ),
+)
+@click.option(
+    "--metadata-file-path",
+    help="JSON metadata file local path",
+    required=False,
+    type=Path(
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+    ),
+)
+@click.option(
+    "--gcp-key-path",
+    help="GCP Service Account key path",
+    required=True,
+    type=Path(
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+    ),
+)
+@click.option(
+    "--api-url",
+    help="Private API base URL",
+    required=True,
+    type=str,
+)
+def metadata_job(
+    input_files_path: str,
+    metadata_file_path: str,
+    gcp_key_path: str,
+    api_url: str,
+):
+    """Iterates on all PDF papers and send their metadata to the specified API"""
+
+    # Initialize file iterator and API controller
+    files_iterator = FileSystemIterator(input_files_path, ".pdf")
+    api_controller = init_api_operator(api_url, gcp_key_path)
+
+    # Initialize the metadata mapper and sources
+    metadata_mapper = ArxivMetadataMapper()
+    metadata_sources = init_metadata_sources(metadata_file_path)
+
+    # Iterate on all files within the provided input path
+    for file_path in files_iterator.iter_paths():
+        paper_id = files_iterator.get_file_name(file_path)
+
+        # Get paper metadata
+        for source in metadata_sources:
+            metadata = source.get_metadata(paper_id)
+
+            for metadata_entry in metadata:
+                dispatch_record(api_controller, metadata_mapper, metadata_entry)
+
+            if len(metadata) > 0:
+                break
 
 
 def dispatch_record(api: DialectMapOperator, mapper: ArxivMetadataMapper, entry) -> None:
