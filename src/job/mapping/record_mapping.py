@@ -51,7 +51,7 @@ class ArxivMetadataMapper:
         }
 
         schemas = PaperAuthorSchema(many=True)
-        records = [{"author_name": author.name, **shared} for author in metadata.paper_authors]
+        records = [dict(**shared, author_name=author.name) for author in metadata.paper_authors]
         records = schemas.load(records)
 
         return schemas.dump(records)
