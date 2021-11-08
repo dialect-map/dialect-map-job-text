@@ -65,102 +65,30 @@ def main(context: Context, log_level: str):
         dir_okay=True,
     ),
 )
-@click.option(
-    "--metadata-file-path",
-    help="JSON metadata file local path",
-    required=False,
-    type=Path(
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-    ),
-)
-@click.option(
-    "--gcp-key-path",
-    help="GCP Service Account key path",
-    required=True,
-    type=Path(
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-    ),
-)
-@click.pass_context
-def text_job(
-    context: Context,
-    input_files_path: str,
-    output_files_path: str,
-    metadata_file_path: Optional[str],
-    gcp_key_path: str,
-):
-    """
-    # Iterate on all PDF files within the provided file
-    #   - Get metadata using files name
-    #       - From file if possible
-    #       - From API as a backup
-    #   - Convert metadata to record dicts
-    #   - Convert PDF to TXT file
-    #   - Save TXT file in parallel path
-    #   - Send records to Private API
+def text_job(input_files_path: str, output_files_path: str):
+    """Iterates on all PDF papers generating TXT equivalents in the output folder"""
 
-    :param context:
-    :param input_files_path:
-    :param output_files_path:
-    :param metadata_file_path:
-    :param gcp_key_path:
-    """
-
-    params = context.ensure_object(dict)
-    api_url = params["API_URL"]
-
-    # Initialize file iterator and API controller
+    # Initialize file iterator
     files_iterator = FileSystemIterator(input_files_path, ".pdf")
-    api_controller = init_api_operator(api_url, gcp_key_path)
 
-    # Initialize the metadata mapper and sources
-    metadata_mapper = ArxivMetadataMapper()
-    metadata_sources = init_metadata_sources(metadata_file_path)
+    # Initialize PDF parser and source object
+    pdf_parser = PDFTextParser()
+    pdf_reader = ArxivCorpusSource(pdf_parser)
 
     # Iterate on all files within the provided input path
     for file_path in files_iterator.iter_paths():
-        paper_id = files_iterator.get_file_name(file_path)
 
         # Extract output path
         path_diff = files_iterator.get_path_diff(input_files_path, file_path)
         file_name = files_iterator.get_file_name(file_path)
         output_path = f"{output_files_path}/{path_diff}"
 
+        # Initialize TXT file writer
+        txt_writer = LocalFileOperator(output_path, TextFileWriter())
+
         # Save paper contents
-        write_contents(file_path, file_name, output_path)
-
-        # Get paper metadata
-        for source in metadata_sources:
-            metadata = source.get_metadata(paper_id)
-
-            for metadata_entry in metadata:
-                dispatch_record(api_controller, metadata_mapper, metadata_entry)
-
-            if len(metadata) > 0:
-                break
-
-
-def write_contents(file_path: str, file_name: str, output_path: str) -> None:
-    """
-    Extracts and saves the text content of a PDF into the desired output path
-    :param file_path: path to the PDF file
-    :param file_name: name of the PDF file
-    :param output_path: path to store the TXT output
-    """
-
-    pdf_parser = PDFTextParser()
-    pdf_reader = ArxivCorpusSource(pdf_parser)
-
-    # Initialize TXT file writer
-    txt_writer = LocalFileOperator(output_path, TextFileWriter())
-
-    # Save paper contents
-    txt_content = pdf_reader.extract_txt(file_path)
-    txt_writer.write_text(file_name, txt_content)
+        txt_content = pdf_reader.extract_txt(file_path)
+        txt_writer.write_text(file_name, txt_content)
 
 
 def dispatch_record(api: DialectMapOperator, mapper: ArxivMetadataMapper, entry) -> None:
