@@ -6,10 +6,10 @@ from datetime import datetime
 from datetime import time
 from datetime import timezone
 
-from src.models import ArxivMetadata
-from src.models import ArxivMetadataAuthor
-from src.models import ArxivMetadataLink
-from src.parsers import FeedMetadataParser
+from src.job.models import ArxivMetadata
+from src.job.models import ArxivMetadataAuthor
+from src.job.models import ArxivMetadataLink
+from src.job.parsers import FeedMetadataParser
 
 from ..__paths import FEED_FOLDER
 

@@ -7,9 +7,9 @@ from datetime import datetime
 from datetime import time
 from datetime import timezone
 
-from src.models import ArxivMetadata
-from src.models import ArxivMetadataAuthor
-from src.parsers import JSONMetadataParser
+from src.job.models import ArxivMetadata
+from src.job.models import ArxivMetadataAuthor
+from src.job.parsers import JSONMetadataParser
 
 from ..__paths import JSON_FOLDER
 
