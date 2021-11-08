@@ -8,12 +8,12 @@ from dialect_map_io.data_input import LocalDataFile
 from dialect_map_io.data_output import RestOutputAPI
 from dialect_map_io.parsers import JSONDataParser
 
-from input import BaseMetadataSource
-from input import ApiMetadataSource
-from input import FileMetadataSource
-from output import DialectMapOperator
-from parsers import FeedMetadataParser
-from parsers import JSONMetadataParser
+from job.input import BaseMetadataSource
+from job.input import ApiMetadataSource
+from job.input import FileMetadataSource
+from job.output import DialectMapOperator
+from job.parsers import FeedMetadataParser
+from job.parsers import JSONMetadataParser
 
 
 def init_api_operator(api_url: str, key_path: str) -> DialectMapOperator:
