@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from typing import List
+import logging
 
+from typing import List
 from dialect_map_io import LocalDataFile
 
 from .base import BaseMetadataSource
 from ...models import ArxivMetadata
 from ...parsers import JSONMetadataParser
+
+logger = logging.getLogger()
 
 
 class FileMetadataSource(BaseMetadataSource):
@@ -39,7 +42,13 @@ class FileMetadataSource(BaseMetadataSource):
         :return: ArXiv paper versions metadata
         """
 
-        json = self.entries.get(paper_id)
-        meta = self.parser.parse_body(json)
+        meta = []
+
+        try:
+            json = self.entries[paper_id]
+        except KeyError:
+            logger.error(f"Paper {paper_id} not found in the ArXiv metadata file")
+        else:
+            meta = self.parser.parse_body(json)
 
         return meta

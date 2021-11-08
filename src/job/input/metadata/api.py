@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from typing import List
+import logging
 
+from typing import List
 from dialect_map_io import ArxivInputAPI
 
 from .base import BaseMetadataSource
 from ...models import ArxivMetadata
 from ...parsers import FeedMetadataParser
+
+logger = logging.getLogger()
 
 
 class ApiMetadataSource(BaseMetadataSource):
@@ -29,7 +32,13 @@ class ApiMetadataSource(BaseMetadataSource):
         :return: ArXiv paper versions metadata
         """
 
-        feed = self.api.request_paper(paper_id)
-        meta = self.parser.parse_body(feed)
+        meta = []
+
+        try:
+            feed = self.api.request_paper(paper_id)
+        except ConnectionError:
+            logger.error(f"Paper {paper_id} not found in the ArXiv export API")
+        else:
+            meta = self.parser.parse_body(feed)
 
         return meta

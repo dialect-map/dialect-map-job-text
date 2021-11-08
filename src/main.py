@@ -133,15 +133,6 @@ def text_job(
     for file_path in files_iterator.iter_paths():
         paper_id = files_iterator.get_file_name(file_path)
 
-        # Get paper metadata
-        for source in metadata_sources:
-            metadata = source.get_metadata(paper_id)
-            if metadata is not None:
-                break
-        else:
-            logger.warning(f"Could not find metadata for paper: {paper_id}")
-            continue
-
         # Extract output path
         path_diff = files_iterator.get_path_diff(input_files_path, file_path)
         file_name = files_iterator.get_file_name(file_path)
@@ -150,9 +141,15 @@ def text_job(
         # Save paper contents
         write_contents(file_path, file_name, output_path)
 
-        # Get records for each metadata entry
-        for metadata_entry in metadata:
-            dispatch_record(api_controller, metadata_mapper, metadata_entry)
+        # Get paper metadata
+        for source in metadata_sources:
+            metadata = source.get_metadata(paper_id)
+
+            for metadata_entry in metadata:
+                dispatch_record(api_controller, metadata_mapper, metadata_entry)
+
+            if len(metadata) > 0:
+                break
 
 
 def write_contents(file_path: str, file_name: str, output_path: str) -> None:
