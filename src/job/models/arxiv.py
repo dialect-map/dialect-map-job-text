@@ -37,7 +37,7 @@ class ArxivMetadata:
     :attr paper_id: unique identifier
     :attr paper_rev: unique revision
     :attr paper_title: paper title
-    :attr paper_summary: paper summary description
+    :attr paper_description: paper description
     :attr paper_category: paper main category
     :attr paper_doi: DOI identifier
     :attr paper_authors: authors list
