@@ -3,6 +3,7 @@
 import logging
 
 from dialect_map_io import RestOutputAPI
+from dialect_map_schemas import APIRoute
 
 logger = logging.getLogger()
 
@@ -18,7 +19,7 @@ class DialectMapOperator:
 
         self.api_object = api_object
 
-    def create_record(self, api_path: str, record: dict) -> None:
+    def _create(self, api_path: str, record: dict) -> None:
         """
         Creates the given record on the specified API path
         :param api_path: API path to send the data
@@ -32,7 +33,7 @@ class DialectMapOperator:
             logger.error(f"Error: {error}")
             raise
 
-    def archive_record(self, api_path: str, record_id: str) -> None:
+    def _archive(self, api_path: str, record_id: str) -> None:
         """
         Archives an existing record on the specified API path
         :param api_path: API path to patch
@@ -45,3 +46,30 @@ class DialectMapOperator:
             logger.error(f"Cannot archive record with ID: {record_id}")
             logger.error(f"Error: {error}")
             raise
+
+    def create_record(self, record_route: APIRoute, record_data: dict) -> None:
+        """
+        Performs the creation of a record on a REST API
+        :param record_data: data record
+        :param record_route: data record route
+        """
+
+        self._create(
+            record_route.api_path,
+            record_data,
+        )
+
+    def archive_record(self, record_route: APIRoute, record_data: dict) -> None:
+        """
+        Performs the archival of a record on a REST API
+        :param record_data: data record
+        :param record_route: data record route
+        """
+
+        record_schema = record_route.model_schema()
+        schema_id_field = record_schema.schema_id
+
+        self._archive(
+            record_route.api_path,
+            record_data[schema_id_field],
+        )
