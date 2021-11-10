@@ -11,6 +11,7 @@ from urllib import parse
 from .base import BaseMetadataParser
 from ..models import ArxivMetadata
 from ..models import ArxivMetadataAuthor
+from ..models import ArxivMetadataCategory
 from ..models import ArxivMetadataLink
 
 logger = logging.getLogger()
@@ -91,17 +92,17 @@ class FeedMetadataParser(BaseMetadataParser):
         parsed = feed_parse(feed)
 
         for entry in parsed.entries:
-            category = entry.arxiv_primary_category["term"]
+            categos = [ArxivMetadataCategory(tag.term) for tag in entry.tags]
             authors = [ArxivMetadataAuthor(author.name) for author in entry.authors]
             links = [ArxivMetadataLink(l["href"], l["type"]) for l in entry.links]
 
             paper = ArxivMetadata(
                 paper_id=self._extract_id(entry.id),
                 paper_rev=self._extract_rev(entry.id),
+                paper_doi=self._extract_doi(entry),
                 paper_title=self._parse_string(entry.title),
                 paper_description=self._parse_string(entry.summary),
-                paper_doi=self._extract_doi(entry),
-                paper_category=category,
+                paper_categories=categos,
                 paper_authors=authors,
                 paper_links=links,
                 paper_created_at=self._parse_date(entry.published),

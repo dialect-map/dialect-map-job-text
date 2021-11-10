@@ -11,10 +11,10 @@ from dialect_map_io.parsers import PDFTextParser
 
 from job.files import FileSystemIterator
 from job.input import ArxivCorpusSource
-from job.mapping import ArxivMetadataMapper
 from job.mapping import CATEGORY_MEMBER_ROUTE
 from job.mapping import PAPER_AUTHOR_ROUTE
 from job.mapping import PAPER_ROUTE
+from job.models import ArxivMetadata
 from job.output import DialectMapOperator
 from job.output import LocalFileOperator
 from logs import setup_logger
@@ -139,8 +139,7 @@ def metadata_job(
     files_iterator = FileSystemIterator(input_files_path, ".pdf")
     api_controller = init_api_operator(api_url, gcp_key_path)
 
-    # Initialize the metadata mapper and sources
-    metadata_mapper = ArxivMetadataMapper()
+    # Initialize the metadata sources
     metadata_sources = init_metadata_sources(metadata_file_path)
 
     # Iterate on all files within the provided input path
@@ -152,29 +151,26 @@ def metadata_job(
             metadata = source.get_metadata(paper_id)
 
             for metadata_entry in metadata:
-                dispatch_record(api_controller, metadata_mapper, metadata_entry)
+                dispatch_record(api_controller, metadata_entry)
 
             if len(metadata) > 0:
                 break
 
 
-def dispatch_record(api: DialectMapOperator, mapper: ArxivMetadataMapper, entry) -> None:
+def dispatch_record(api: DialectMapOperator, entry: ArxivMetadata) -> None:
     """
     Dispatch metadata entry records using the provided API operator
     :param api: Dialect map API operator
-    :param mapper: Dialect map schema mapper
     :param entry: metadata entry to parse
     """
 
-    authors = mapper.get_paper_authors(entry)
-    membership = mapper.get_paper_membership(entry)
-    paper_info = mapper.get_paper_data(entry)
+    # The paper record must be inserted first
+    api.create_record(PAPER_ROUTE, entry.paper_record)
 
-    # Send data (order matters)
-    api.create_record(PAPER_ROUTE, paper_info)
-    api.create_record(CATEGORY_MEMBER_ROUTE, membership)
+    for membership in entry.memberships_records:
+        api.create_record(CATEGORY_MEMBER_ROUTE, membership)
 
-    for author in authors:
+    for author in entry.author_records:
         api.create_record(PAPER_AUTHOR_ROUTE, author)
 
 

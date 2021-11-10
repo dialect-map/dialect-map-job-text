@@ -8,6 +8,7 @@ from datetime import timezone
 
 from src.job.models import ArxivMetadata
 from src.job.models import ArxivMetadataAuthor
+from src.job.models import ArxivMetadataCategory
 from src.job.models import ArxivMetadataLink
 from src.job.parsers import FeedMetadataParser
 
@@ -39,7 +40,6 @@ def test_feed_entries_parse(feed_entry: ArxivMetadata):
     assert feed_entry.paper_id == "hep-ex/0307015"
     assert feed_entry.paper_rev == 1
     assert feed_entry.paper_doi == "10.1140/epjc/s2003-01326-x"
-    assert feed_entry.paper_category == "hep-ex"
     assert feed_entry.paper_title == (
         "Multi-Electron Production at High Transverse Momenta in ep Collisions at HERA"
     )
@@ -72,6 +72,17 @@ def test_feed_entries_authors_parse(feed_entry: ArxivMetadata):
 
     assert feed_entry.paper_authors == [
         ArxivMetadataAuthor("H1 Collaboration"),
+    ]
+
+
+def test_feed_entries_categories_parse(feed_entry: ArxivMetadata):
+    """
+    Tests the correct parsing of the Arxiv feed categories field
+    :param feed_entry: feed entry object
+    """
+
+    assert feed_entry.paper_categories == [
+        ArxivMetadataCategory("hep-ex"),
     ]
 
 
