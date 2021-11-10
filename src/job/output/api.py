@@ -54,9 +54,12 @@ class DialectMapOperator:
         :param record_route: data record route
         """
 
+        record_schema = record_route.model_schema()
+        record_data = record_schema.load(record_data)
+
         self._create(
             record_route.api_path,
-            record_data,
+            record_schema.dump(record_data),
         )
 
     def archive_record(self, record_route: APIRoute, record_data: dict) -> None:
