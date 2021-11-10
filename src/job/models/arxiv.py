@@ -17,6 +17,17 @@ class ArxivMetadataAuthor:
 
 
 @dataclass
+class ArxivMetadataCategory:
+    """
+    Object containing the category field of an Arxiv metadata entry
+
+    :attr name: name of the category
+    """
+
+    name: str
+
+
+@dataclass
 class ArxivMetadataLink:
     """
     Object containing the link fields of an Arxiv metadata entry
@@ -36,10 +47,10 @@ class ArxivMetadata:
 
     :attr paper_id: unique identifier
     :attr paper_rev: unique revision
+    :attr paper_doi: DOI identifier
     :attr paper_title: paper title
     :attr paper_description: paper description
-    :attr paper_category: paper main category
-    :attr paper_doi: DOI identifier
+    :attr paper_categories: categories list
     :attr paper_authors: authors list
     :attr paper_links: resources links list
     :attr paper_created_at: paper submission date
@@ -48,10 +59,10 @@ class ArxivMetadata:
 
     paper_id: str
     paper_rev: int
+    paper_doi: str
     paper_title: str
     paper_description: str
-    paper_category: str
-    paper_doi: str
+    paper_categories: List[ArxivMetadataCategory]
     paper_authors: List[ArxivMetadataAuthor]
     paper_links: List[ArxivMetadataLink]
     paper_created_at: datetime
