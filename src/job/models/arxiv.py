@@ -2,7 +2,12 @@
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Iterable
 from typing import List
+
+from dialect_map_schemas import CategoryMembershipSchema
+from dialect_map_schemas import PaperSchema
+from dialect_map_schemas import PaperAuthorSchema
 
 
 @dataclass
@@ -67,3 +72,48 @@ class ArxivMetadata:
     paper_links: List[ArxivMetadataLink]
     paper_created_at: datetime
     paper_updated_at: datetime
+
+    @property
+    def paper_record(self) -> dict:
+        """Adapts the ArXiv metadata object into a Paper record"""
+
+        schema = PaperSchema()
+
+        return {
+            schema.arxiv_id.name: self.paper_id,
+            schema.arxiv_rev.name: self.paper_rev,
+            schema.title.name: self.paper_title,
+            schema.doi_id.name: self.paper_doi,
+            schema.revision_date.name: self.paper_updated_at.date().isoformat(),
+            schema.submission_date.name: self.paper_created_at.date().isoformat(),
+            schema.created_at.name: self.paper_created_at.isoformat(),
+            schema.updated_at.name: self.paper_updated_at.isoformat(),
+        }
+
+    @property
+    def author_records(self) -> Iterable[dict]:
+        """Adapts the ArXiv metadata object into a list of PaperAuthor records"""
+
+        schema = PaperAuthorSchema()
+
+        for author in self.paper_authors:
+            yield {
+                schema.arxiv_id.name: self.paper_id,
+                schema.arxiv_rev.name: self.paper_rev,
+                schema.author_name.name: author.name,
+                schema.created_at.name: self.paper_created_at.isoformat(),
+            }
+
+    @property
+    def memberships_records(self) -> Iterable[dict]:
+        """Adapts the ArXiv metadata object into a list of CategoryMembership records"""
+
+        schema = CategoryMembershipSchema()
+
+        for category in self.paper_categories:
+            yield {
+                schema.arxiv_id.name: self.paper_id,
+                schema.arxiv_rev.name: self.paper_rev,
+                schema.category_id.name: category.name,
+                schema.created_at.name: self.paper_created_at.isoformat(),
+            }
