@@ -10,6 +10,7 @@ from typing import List
 from .base import BaseMetadataParser
 from ..models import ArxivMetadata
 from ..models import ArxivMetadataAuthor
+from ..models import ArxivMetadataCategory
 
 logger = logging.getLogger()
 
@@ -101,19 +102,19 @@ class JSONMetadataParser(BaseMetadataParser):
         created = None
 
         for version in entry["versions"]:
-            categories = entry["categories"].split()
             created = self._extract_date(version["created"]) if created is None else created
             updated = self._extract_date(version["created"])
+            categos = [ArxivMetadataCategory(c) for c in entry["categories"].split()]
             authors = [ArxivMetadataAuthor(a) for a in self._parse_authors(entry["authors_parsed"])]
             links = []  # type: ignore
 
             paper = ArxivMetadata(
                 paper_id=entry["id"],
                 paper_rev=self._extract_rev(version["version"]),
+                paper_doi=self._extract_doi(entry),
                 paper_title=self._parse_string(entry["title"]),
                 paper_description=self._parse_string(entry["abstract"]),
-                paper_doi=self._extract_doi(entry),
-                paper_category=categories[0],
+                paper_categories=categos,
                 paper_authors=authors,
                 paper_links=links,
                 paper_created_at=created,
