@@ -9,6 +9,7 @@ from datetime import timezone
 
 from src.job.models import ArxivMetadata
 from src.job.models import ArxivMetadataAuthor
+from src.job.models import ArxivMetadataCategory
 from src.job.parsers import JSONMetadataParser
 
 from ..__paths import JSON_FOLDER
@@ -76,17 +77,14 @@ def test_json_entries_parse(
     assert json_entry_1.paper_id == "0704.0001"
     assert json_entry_1.paper_rev == 1
     assert json_entry_1.paper_doi == "10.1103/PhysRevD.76.013009"
-    assert json_entry_1.paper_category == "hep-ph"
 
     assert json_entry_2.paper_id == "0704.0002"
     assert json_entry_2.paper_rev == 1
     assert json_entry_2.paper_doi == ""
-    assert json_entry_2.paper_category == "math.CO"
 
     assert json_entry_3.paper_id == "supr-con/9609003"
     assert json_entry_3.paper_rev == 1
     assert json_entry_3.paper_doi == "10.1143/JPSJ.65.3131"
-    assert json_entry_3.paper_category == "supr-con"
 
 
 def test_json_created_date_parse(
@@ -183,4 +181,31 @@ def test_json_authors_parse(
 
     assert json_entry_3.paper_authors == [
         ArxivMetadataAuthor("Hasegawa Yasumasa"),
+    ]
+
+
+def test_json_categories_parse(
+    json_entry_1: ArxivMetadata,
+    json_entry_2: ArxivMetadata,
+    json_entry_3: ArxivMetadata,
+):
+    """
+    Tests the correct parsing of the Arxiv json categories field
+    :param json_entry_1: metadata object
+    :param json_entry_2: metadata object
+    :param json_entry_3: metadata object
+    """
+
+    assert json_entry_1.paper_categories == [
+        ArxivMetadataCategory("hep-ph"),
+    ]
+
+    assert json_entry_2.paper_categories == [
+        ArxivMetadataCategory("math.CO"),
+        ArxivMetadataCategory("cs.CG"),
+    ]
+
+    assert json_entry_3.paper_categories == [
+        ArxivMetadataCategory("supr-con"),
+        ArxivMetadataCategory("cond-mat.supr-con"),
     ]
