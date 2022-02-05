@@ -1,6 +1,6 @@
 # Public packages
 black==22.1.0
-mypy==0.910
+mypy==0.931
 
 # Typing packages
 types-pytz==2021.3
