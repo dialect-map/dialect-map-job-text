@@ -1,5 +1,5 @@
 # Public packages
-black==21.10b0
+black==22.1.0
 mypy==0.910
 
 # Typing packages
