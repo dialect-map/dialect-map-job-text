@@ -1,26 +1,27 @@
 #!/usr/bin/env python
 
 import click
-import logging
 
 from click import Context
 from click import Path
 
+from dialect_map_gcp.auth import OpenIDAuthenticator
+from dialect_map_io.data_input import ArxivInputAPI
+from dialect_map_io.data_input import LocalDataFile
+from dialect_map_io.data_output import RestOutputAPI
+from dialect_map_io.parsers import JSONDataParser
 from dialect_map_io.parsers import PDFTextParser
 
 from job.files import FileSystemIterator
+from job.input import ApiMetadataSource
+from job.input import FileMetadataSource
 from job.input import PDFCorpusSource
-from job.mapping import CATEGORY_MEMBER_ROUTE
-from job.mapping import PAPER_AUTHOR_ROUTE
-from job.mapping import PAPER_ROUTE
-from job.models import ArxivMetadata
 from job.output import DialectMapOperator
+from job.parsers import FeedMetadataParser
+from job.parsers import JSONMetadataParser
 from logs import setup_logger
 from pipes import LocalTextPipeline
-from utils import init_api_operator
-from utils import init_metadata_sources
-
-logger = logging.getLogger()
+from pipes import MetadataPipeline
 
 
 @click.group()
@@ -69,7 +70,7 @@ def text_job(input_files_path: str, output_files_path: str):
     # Initialize file iterator
     files_iterator = FileSystemIterator(input_files_path, ".pdf")
 
-    # Initialize PDF parser and source object
+    # Initialize PDF reader
     pdf_parser = PDFTextParser()
     pdf_reader = PDFCorpusSource(pdf_parser)
 
@@ -122,43 +123,28 @@ def metadata_job(
 ):
     """Iterates on all PDF papers and send their metadata to the specified API"""
 
-    # Initialize file iterator and API controller
-    files_iterator = FileSystemIterator(input_files_path, ".pdf")
-    api_controller = init_api_operator(api_url, gcp_key_path)
+    # Initialize file iterator
+    file_iter = FileSystemIterator(input_files_path, ".pdf")
 
-    # Initialize the metadata sources
-    metadata_sources = init_metadata_sources(metadata_file_path)
+    # Initialize API controller
+    api_auth = OpenIDAuthenticator(gcp_key_path, api_url)
+    api_conn = RestOutputAPI(api_url, api_auth)
+    api_ctl = DialectMapOperator(api_conn)
 
-    # Iterate on all files within the provided input path
-    for file_path in files_iterator.iter_paths():
-        paper_id = files_iterator.get_file_name(file_path)
+    # Initialize metadata sources
+    file_source = FileMetadataSource(
+        LocalDataFile(metadata_file_path, JSONDataParser()),
+        JSONMetadataParser(),
+    )
+    api_source = ApiMetadataSource(
+        ArxivInputAPI("https://export.arxiv.org/api"),
+        FeedMetadataParser(),
+    )
 
-        # Get paper metadata
-        for source in metadata_sources:
-            metadata = source.get_metadata(paper_id)
-
-            for metadata_entry in metadata:
-                dispatch_record(api_controller, metadata_entry)
-
-            if len(metadata) > 0:
-                break
-
-
-def dispatch_record(api: DialectMapOperator, entry: ArxivMetadata) -> None:
-    """
-    Dispatch metadata entry records using the provided API operator
-    :param api: Dialect map API operator
-    :param entry: metadata entry to parse
-    """
-
-    # The paper record must be inserted first
-    api.create_record(PAPER_ROUTE, entry.paper_record)
-
-    for membership in entry.memberships_records:
-        api.create_record(CATEGORY_MEMBER_ROUTE, membership)
-
-    for author in entry.author_records:
-        api.create_record(PAPER_AUTHOR_ROUTE, author)
+    pipeline = MetadataPipeline(file_iter, api_ctl)
+    pipeline.add_source(file_source)
+    pipeline.add_source(api_source)
+    pipeline.run()
 
 
 if __name__ == "__main__":
