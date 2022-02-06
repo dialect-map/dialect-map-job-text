@@ -6,18 +6,17 @@ import logging
 from click import Context
 from click import Path
 
-from dialect_map_io.data_output import TextFileWriter
 from dialect_map_io.parsers import PDFTextParser
 
 from job.files import FileSystemIterator
-from job.input import ArxivCorpusSource
+from job.input import PDFCorpusSource
 from job.mapping import CATEGORY_MEMBER_ROUTE
 from job.mapping import PAPER_AUTHOR_ROUTE
 from job.mapping import PAPER_ROUTE
 from job.models import ArxivMetadata
 from job.output import DialectMapOperator
-from job.output import LocalFileOperator
 from logs import setup_logger
+from pipes import LocalTextPipeline
 from utils import init_api_operator
 from utils import init_metadata_sources
 
@@ -72,22 +71,10 @@ def text_job(input_files_path: str, output_files_path: str):
 
     # Initialize PDF parser and source object
     pdf_parser = PDFTextParser()
-    pdf_reader = ArxivCorpusSource(pdf_parser)
+    pdf_reader = PDFCorpusSource(pdf_parser)
 
-    # Iterate on all files within the provided input path
-    for file_path in files_iterator.iter_paths():
-
-        # Extract output path
-        path_diff = files_iterator.get_path_diff(input_files_path, file_path)
-        file_name = files_iterator.get_file_name(file_path)
-        output_path = f"{output_files_path}/{path_diff}"
-
-        # Initialize TXT file writer
-        txt_writer = LocalFileOperator(output_path, TextFileWriter())
-
-        # Save paper contents
-        txt_content = pdf_reader.extract_txt(file_path)
-        txt_writer.write_text(file_name, txt_content)
+    pipeline = LocalTextPipeline(files_iterator, pdf_reader)
+    pipeline.run(output_files_path)
 
 
 @main.command()
