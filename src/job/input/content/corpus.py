@@ -3,7 +3,7 @@
 from dialect_map_io import PDFTextParser
 
 
-class ArxivCorpusSource:
+class PDFCorpusSource:
     """File corpus source for the PDFs content"""
 
     def __init__(self, parser: PDFTextParser):
