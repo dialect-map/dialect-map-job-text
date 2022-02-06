@@ -6,23 +6,29 @@ import os
 from pathlib import Path
 from typing import Generator
 from typing import List
+from typing import Union
+
+StrPath = Union[str, Path]
 
 
 class FileSystemIterator:
     """File system iterator for file system trees"""
 
-    def __init__(self, root_path: str, extension: str):
+    def __init__(self, root_path: StrPath, extension: str):
         """
         Initializes a File System iterator to traverse the tree
-        :param root_path: root file path to iterator from
-        :param extension: file extensions to accept
+        :param root_path: root file path to iterate from
+        :param extension: file extension to accept
         """
+
+        if not Path(root_path).is_dir():
+            raise ValueError("Iterator root path must be a directory")
 
         self.root_path = Path(root_path).resolve()
         self.glob_path = f"{self.root_path}/**/*{extension}"
 
     @staticmethod
-    def get_file_name(path: str) -> str:
+    def get_file_name(path: StrPath) -> str:
         """
         Extracts a file name out of a path
         :param path: complete file path
@@ -32,7 +38,7 @@ class FileSystemIterator:
         return Path(path).name
 
     @staticmethod
-    def get_node_name(path: str, node_index: int) -> str:
+    def get_node_name(path: StrPath, node_index: int) -> str:
         """
         Extracts a path node from the complete path
         :param path: complete file path
@@ -42,27 +48,24 @@ class FileSystemIterator:
 
         return Path(path).parts[node_index]
 
-    @staticmethod
-    def get_path_diff(path_a: str, path_b: str) -> Path:
+    def get_path_diff(self, path: StrPath) -> Path:
         """
-        Extracts the tail difference between a path and one of its sub-paths
-        :param path_a: First path / sub-path to consider
-        :param path_b: Second path / sub-path to consider
+        Extracts the tail difference between a root path and one of its sub-paths
+        :param path: sub-path to consider
         :return: tail difference path
         """
 
-        if not (path_a in path_b or path_b in path_a):
-            raise ValueError("Compared paths must have some common sub-path")
+        if self.root_path not in Path(path).parents:
+            raise ValueError(f"Provided file path must be within {self.root_path}")
 
-        common_path_str = os.path.commonpath([path_a, path_b])
+        directory_path = Path(path).parent.resolve()
+
+        common_path_str = os.path.commonpath([self.root_path, directory_path])
         common_path_obj = Path(common_path_str)
         common_path_len = len(common_path_obj.parts)
 
-        path_a_parts = Path(path_a).parts
-        path_b_parts = Path(path_b).parts
-        longest_path = max([path_a_parts, path_b_parts], key=len)
-
-        return Path(*longest_path[common_path_len:])
+        path_diff_parts = directory_path.parts[common_path_len:]
+        return Path(*path_diff_parts)
 
     def all_paths(self) -> List[str]:
         """

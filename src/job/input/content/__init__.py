@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from .corpus import ArxivCorpusSource
+from .corpus import PDFCorpusSource
