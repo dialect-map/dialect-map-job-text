@@ -20,8 +20,8 @@ from job.output import DialectMapOperator
 from job.parsers import FeedMetadataParser
 from job.parsers import JSONMetadataParser
 from logs import setup_logger
-from pipes import LocalTextPipeline
-from pipes import MetadataPipeline
+from routines import LocalTextRoutine
+from routines import MetadataRoutine
 
 
 @click.group()
@@ -74,8 +74,8 @@ def text_job(input_files_path: str, output_files_path: str):
     pdf_parser = PDFTextParser()
     pdf_reader = PDFCorpusSource(pdf_parser)
 
-    pipeline = LocalTextPipeline(files_iterator, pdf_reader)
-    pipeline.run(output_files_path)
+    routine = LocalTextRoutine(files_iterator, pdf_reader)
+    routine.run(output_files_path)
 
 
 @main.command()
@@ -141,10 +141,10 @@ def metadata_job(
         FeedMetadataParser(),
     )
 
-    pipeline = MetadataPipeline(file_iter, api_ctl)
-    pipeline.add_source(file_source)
-    pipeline.add_source(api_source)
-    pipeline.run()
+    routine = MetadataRoutine(file_iter, api_ctl)
+    routine.add_source(file_source)
+    routine.add_source(api_source)
+    routine.run()
 
 
 if __name__ == "__main__":

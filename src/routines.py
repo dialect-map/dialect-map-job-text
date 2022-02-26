@@ -21,8 +21,8 @@ from job.output import LocalFileOperator
 logger = logging.getLogger()
 
 
-class BasePipeline(ABC):
-    """Base class for the job pipelines"""
+class BaseRoutine(ABC):
+    """Base class for the job routines"""
 
     @abstractmethod
     def run(self, destination_path: str) -> None:
@@ -34,12 +34,12 @@ class BasePipeline(ABC):
         raise NotImplementedError()
 
 
-class LocalTextPipeline(BasePipeline):
-    """Pipeline extracting local ArXiv corpus texts"""
+class LocalTextRoutine(BaseRoutine):
+    """Routine extracting local ArXiv corpus texts"""
 
     def __init__(self, file_iter: FileSystemIterator, pdf_reader: PDFCorpusSource):
         """
-        Initializes the local ArXiv corpus text extraction pipeline
+        Initializes the local ArXiv corpus text extraction routine
         :param file_iter: Local file system iterator
         :param pdf_reader: PDF file corpus source
         """
@@ -67,12 +67,12 @@ class LocalTextPipeline(BasePipeline):
             txt_operator.write_text(file_name, txt_content)
 
 
-class MetadataPipeline(BasePipeline):
-    """Pipeline extracting ArXiv metadata"""
+class MetadataRoutine(BaseRoutine):
+    """Routine extracting ArXiv metadata"""
 
     def __init__(self, file_iter: FileSystemIterator, api_ctl: DialectMapOperator):
         """
-        Initializes the ArXiv corpus metadata extraction pipeline
+        Initializes the ArXiv corpus metadata extraction routine
         :param file_iter: Local file system iterator
         :param api_ctl: API REST operator to be used as output
         """
