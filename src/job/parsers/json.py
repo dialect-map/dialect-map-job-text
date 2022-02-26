@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import pytz
 import re
 
 from datetime import datetime
 from typing import List
+
+import pytz
 
 from .base import BaseMetadataParser
 from ..models import ArxivMetadata

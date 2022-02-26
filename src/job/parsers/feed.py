@@ -3,10 +3,11 @@
 import logging
 import re
 
-from feedparser import FeedParserDict
-from feedparser import parse as feed_parse
 from typing import List
 from urllib import parse
+
+from feedparser import FeedParserDict
+from feedparser import parse as feed_parse
 
 from .base import BaseMetadataParser
 from ..models import ArxivMetadata

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import pytest
 import tempfile
 import shutil
 
@@ -8,6 +7,8 @@ from pathlib import Path
 from typing import Generator
 from typing import List
 from typing import Tuple
+
+import pytest
 
 from src.job.files import FileSystemIterator
 

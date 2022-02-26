@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import pytest
 from datetime import date
 from datetime import datetime
 from datetime import time
 from datetime import timezone
+
+import pytest
 
 from src.job.models import ArxivMetadata
 from src.job.models import ArxivMetadataAuthor
