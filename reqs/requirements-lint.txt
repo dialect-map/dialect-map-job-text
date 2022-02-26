@@ -1,5 +1,6 @@
 # Public packages
 black==22.1.0
+isort==5.10.1
 mypy==0.931
 
 # Typing packages
