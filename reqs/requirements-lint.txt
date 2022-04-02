@@ -4,4 +4,4 @@ isort==5.10.1
 mypy==0.942
 
 # Typing packages
-types-pytz==2021.3
+types-pytz~=2021.3.0
