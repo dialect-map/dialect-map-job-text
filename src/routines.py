@@ -120,9 +120,5 @@ class MetadataRoutine(BaseRoutine):
             for record in records:
                 self.api_controller.create_record(
                     DM_PAPER_METADATA_ROUTE,
-                    {
-                        "paper": record.paper_record,
-                        "authors": record.author_records,
-                        "memberships": record.memberships_records,
-                    },
+                    record.paper_metadata,
                 )
