@@ -7,13 +7,11 @@ from abc import abstractmethod
 from typing import List
 
 from dialect_map_io.data_output import TextFileWriter
+from dialect_map_schemas.routes import DM_PAPER_METADATA_ROUTE
 
 from job.files import FileSystemIterator
 from job.input import BaseMetadataSource
 from job.input import PDFCorpusSource
-from job.mapping import CATEGORY_MEMBER_ROUTE
-from job.mapping import PAPER_AUTHOR_ROUTE
-from job.mapping import PAPER_ROUTE
 from job.models import ArxivMetadata
 from job.output import DialectMapOperator
 from job.output import LocalFileOperator
@@ -81,21 +79,6 @@ class MetadataRoutine(BaseRoutine):
         self.api_controller = api_ctl
         self.sources = []  # type: ignore
 
-    def _dispatch_record(self, record: ArxivMetadata) -> None:
-        """
-        Dispatch metadata record to the destination API
-        :param record: metadata record to dispatch
-        """
-
-        # The paper record must be inserted first
-        self.api_controller.create_record(PAPER_ROUTE, record.paper_record)
-
-        for membership in record.memberships_records:
-            self.api_controller.create_record(CATEGORY_MEMBER_ROUTE, membership)
-
-        for author in record.author_records:
-            self.api_controller.create_record(PAPER_AUTHOR_ROUTE, author)
-
     def _get_metadata_records(self, paper_id: str) -> List[ArxivMetadata]:
         """
         Gets the metadata records from the sources given an ArXiv paper ID
@@ -135,4 +118,11 @@ class MetadataRoutine(BaseRoutine):
                 continue
 
             for record in records:
-                self._dispatch_record(record)
+                self.api_controller.create_record(
+                    DM_PAPER_METADATA_ROUTE,
+                    {
+                        "paper": record.paper_record,
+                        "authors": record.author_records,
+                        "memberships": record.memberships_records,
+                    },
+                )
