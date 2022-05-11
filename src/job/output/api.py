@@ -54,7 +54,7 @@ class DialectMapOperator:
         :param record_route: data record route
         """
 
-        record_schema = record_route.model_schema()
+        record_schema = record_route.schema()
         record_data = record_schema.load(record_data)
 
         self._create(
@@ -69,7 +69,7 @@ class DialectMapOperator:
         :param record_route: data record route
         """
 
-        record_schema = record_route.model_schema()
+        record_schema = record_route.schema()
         schema_id_field = record_schema.schema_id
 
         self._archive(

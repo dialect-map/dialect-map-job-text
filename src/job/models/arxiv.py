@@ -8,6 +8,7 @@ from typing import List
 from dialect_map_schemas import CategoryMembershipSchema
 from dialect_map_schemas import PaperSchema
 from dialect_map_schemas import PaperAuthorSchema
+from dialect_map_schemas import PaperMetadataSchema
 
 
 @dataclass
@@ -74,8 +75,19 @@ class ArxivMetadata:
     paper_updated_at: datetime
 
     @property
-    def paper_record(self) -> dict:
-        """Adapts the ArXiv metadata object into a Paper record"""
+    def paper_metadata(self) -> dict:
+        """Adapts the ArXiv metadata object into a PaperMetadata record"""
+
+        schema = PaperMetadataSchema()
+
+        return {
+            schema.paper.name: self._build_paper_record(),
+            schema.authors.name: self._build_author_records(),
+            schema.memberships.name: self._build_membership_records(),
+        }
+
+    def _build_paper_record(self) -> dict:
+        """Builds an ArXiv paper dictionary out of the ArXiv metadata object"""
 
         schema = PaperSchema()
 
@@ -90,9 +102,8 @@ class ArxivMetadata:
             schema.updated_at.name: self.paper_updated_at.isoformat(),
         }
 
-    @property
-    def author_records(self) -> Iterable[dict]:
-        """Adapts the ArXiv metadata object into a list of PaperAuthor records"""
+    def _build_author_records(self) -> Iterable[dict]:
+        """Builds an ArXiv author dictionary out of the ArXiv metadata object"""
 
         schema = PaperAuthorSchema()
 
@@ -104,9 +115,8 @@ class ArxivMetadata:
                 schema.created_at.name: self.paper_created_at.isoformat(),
             }
 
-    @property
-    def memberships_records(self) -> Iterable[dict]:
-        """Adapts the ArXiv metadata object into a list of CategoryMembership records"""
+    def _build_membership_records(self) -> Iterable[dict]:
+        """Builds an ArXiv category membership dictionary out of the ArXiv metadata object"""
 
         schema = CategoryMembershipSchema()
 
