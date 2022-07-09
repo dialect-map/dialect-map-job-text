@@ -8,21 +8,19 @@
 
 ### About
 This repository contains the PDF to TXT transformation job that is run upon any new ArXiv paper.
-In addition, it retrieves the metadata for each of these papers by using one of the following sources:
+In addition, it retrieves and sends their metadata to the [Dialect map private API][dialect-map-api]
+by using one of the following sources:
 
 - The public [ArXiv Kaggle dataset][arxiv-metadata-file].
 - The public [ArXiv export API][arxiv-metadata-api].
-
-It is used in combination with the [Dialect map IO][dialect-map-io] package, providing file parsing
-and API connection means, and the [Dialect map schemas][dialect-map-schemas] package in order
-to send papers metadata to the [Dialect map private API][dialect-map-api] component.
 
 
 ### Dependencies
 Python dependencies are specified on the multiple files within the `reqs` directory.
 
 In order to install all the development packages, as long as the defined commit hooks:
-```sh
+
+```shell
 make install-dev
 ```
 
@@ -30,41 +28,36 @@ make install-dev
 ### Formatting
 All Python files are formatted using [Black][web-black], and the custom properties defined
 in the `pyproject.toml` file.
-```sh
+
+```shell
 make check
 ```
 
 
 ### Testing
 Project testing is performed using [Pytest][web-pytest]. In order to run the tests:
-```sh
+
+```shell
 make test
 ```
 
 
 ### CLI 🚀
 The project contains a [main.py][main-module] module exposing a CLI with several commands:
-```sh
+
+```shell
 python3 src/main.py [OPTIONS] [COMMAND] [ARGS]...
 ```
-
-The top-level options are:
-
-| OPTION         | ENV VARIABLE           | DEFAULT          | REQUIRED | DESCRIPTION                              |
-|----------------|------------------------|------------------|----------|------------------------------------------|
-| --log-level    | DIALECT_MAP_LOG_LEVEL  | INFO             | No       | Log messages level                       |
 
 
 #### Command: `text-job`
 This command starts a process that recursively traverses a file system tree of PDF files,
 transforming them into their TXT equivalent.
 
-The command arguments are:
-
-| ARGUMENT            | ENV VARIABLE      | DEFAULT          | REQUIRED | DESCRIPTION                              |
-|---------------------|-------------------|------------------|----------|------------------------------------------|
-| --input-files-path  | -                 | -                | Yes      | Path to the list of input PDF files      |
-| --output-files-path | -                 | -                | Yes      | Path to store the output TXT files       |
+| ARGUMENT            | ENV VARIABLE          | REQUIRED | DESCRIPTION                              |
+|---------------------|-----------------------|----------|------------------------------------------|
+| --input-files-path  | -                     | Yes      | Path to the list of input PDF files      |
+| --output-files-path | -                     | Yes      | Path to store the output TXT files       |
 
 
 #### Command: `metadata-job`
@@ -72,14 +65,12 @@ This command starts a process that recursively traverses a file system tree of P
 sending their metadata to the Dialect Map _private_ API along the way. The process assumes
 that each PDF is an ArXiv paper, with their names as their IDs.
 
-The command arguments are:
-
-| ARGUMENT            | ENV VARIABLE      | DEFAULT          | REQUIRED | DESCRIPTION                              |
-|---------------------|-------------------|------------------|----------|------------------------------------------|
-| --input-files-path  | -                 | -                | Yes      | Path to the list of input PDF files      |
-| --meta-file-path    | -                 | -                | Yes      | Path to the ArXiv metadata JSON file     |
-| --gcp-key-path      | -                 | -                | Yes      | GCP Service account key path             |
-| --api-url           | -                 | -                | Yes      | Private API base URL                     |
+| ARGUMENT            | ENV VARIABLE          | REQUIRED | DESCRIPTION                              |
+|---------------------|-----------------------|----------|------------------------------------------|
+| --input-files-path  | -                     | Yes      | Path to the list of input PDF files      |
+| --meta-file-path    | -                     | Yes      | Path to the ArXiv metadata JSON file     |
+| --gcp-key-path      | -                     | Yes      | GCP Service account key path             |
+| --api-url           | -                     | Yes      | Private API base URL                     |
 
 
 [ci-status-badge]: https://github.com/dialect-map/dialect-map-job-text/actions/workflows/ci.yml/badge.svg?branch=main
@@ -94,8 +85,6 @@ The command arguments are:
 [arxiv-metadata-api]: https://arxiv.org/help/api/user-manual
 [arxiv-metadata-file]: https://www.kaggle.com/Cornell-University/arxiv
 [dialect-map-api]: https://github.com/dialect-map/dialect-map-private-api
-[dialect-map-io]: https://github.com/dialect-map/dialect-map-io
-[dialect-map-schemas]: https://github.com/dialect-map/dialect-map-schemas
 [main-module]: src/main.py
 [web-black]: https://black.readthedocs.io/en/stable/
 [web-pytest]: https://docs.pytest.org/en/latest/#
