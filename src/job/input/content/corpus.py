@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from dialect_map_io import PDFTextParser
+from dialect_map_io import PDFFileHandler
 
 
 class PDFCorpusSource:
     """File corpus source for the PDFs content"""
 
-    def __init__(self, parser: PDFTextParser):
+    def __init__(self, handler: PDFFileHandler):
         """
         Initializes the corpus operator with a given parser
-        :param parser: object to parse the PDF files
+        :param handler: object to handle PDF files
         """
 
-        self.parser = parser
+        self.handler = handler
 
     def extract_txt(self, file_path: str) -> str:
         """
@@ -21,4 +21,4 @@ class PDFCorpusSource:
         :return: file text
         """
 
-        return self.parser.parse_file(file_path)
+        return self.handler.read_file(file_path)
