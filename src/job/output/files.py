@@ -3,7 +3,7 @@
 import logging
 
 from pathlib import Path
-from dialect_map_io import BaseFileWriter
+from dialect_map_io import BaseFileHandler
 
 logger = logging.getLogger()
 
@@ -11,15 +11,15 @@ logger = logging.getLogger()
 class LocalFileOperator:
     """Class to write on local file system files"""
 
-    def __init__(self, destination: str, file_writer: BaseFileWriter):
+    def __init__(self, destination: str, file_handler: BaseFileHandler):
         """
         Initializes the local file system operator object
         :param destination: folder to create the files
-        :param file_writer: writer to dump the files content
+        :param file_handler: file to dump the content
         """
 
         self.destination = destination
-        self.file_writer = file_writer
+        self.file_handler = file_handler
 
     def _build_path(self, file_name: str) -> Path:
         """
@@ -43,7 +43,7 @@ class LocalFileOperator:
             logging.warning(f"File {file_path} already exists")
             return
 
-        self.file_writer.write_file(
+        self.file_handler.write_file(
             file_path=str(file_path),
             content=text,
         )

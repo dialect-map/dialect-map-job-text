@@ -2,5 +2,5 @@
 
 from .base import BaseMetadataSource
 
-from .api import ApiMetadataSource
-from .file import FileMetadataSource
+from .api import ArxivMetadataSource
+from .file import JSONMetadataSource
