@@ -3,7 +3,7 @@
 import logging
 
 from typing import List
-from dialect_map_io import LocalDataFile
+from dialect_map_io import JSONFileHandler
 
 from .base import BaseMetadataSource
 from ...models import ArxivMetadata
@@ -12,28 +12,29 @@ from ...parsers import JSONMetadataParser
 logger = logging.getLogger()
 
 
-class FileMetadataSource(BaseMetadataSource):
+class JSONMetadataSource(BaseMetadataSource):
     """JSON file source for the metadata information"""
 
-    def __init__(self, file: LocalDataFile, parser: JSONMetadataParser):
+    def __init__(self, handler: JSONFileHandler, parser: JSONMetadataParser, file_path: str):
         """
         Initializes the metadata operator with a given JSON parser
-        :param file: local data file with the metadata to iterate on
+        :param handler: local data file with the metadata to iterate on
         :param parser: object to parse the metadata entries
+        :param file_path: path to the metadata file
         """
 
+        self.handler = handler
         self.parser = parser
-        self.entries = self._build_metadata_file(file)
+        self.entries = self._build_metadata_file(file_path)
 
-    @staticmethod
-    def _build_metadata_file(file: LocalDataFile) -> dict:
+    def _build_metadata_file(self, file_path: str) -> dict:
         """
-        Builds a ID - JSON dictionary after iterating the provided metadata file
-        :param file: local data file with the metadata to iterate on
+        Builds an ID - JSON dictionary after iterating the provided metadata file
+        :param file_path: path to the metadata file
         :return: ID - JSON dictionary
         """
 
-        return {json["id"]: json for json in file.iter_items()}
+        return {json["id"]: json for json in self.handler.read_items(file_path)}
 
     def get_metadata(self, paper_id: str) -> List[ArxivMetadata]:
         """
