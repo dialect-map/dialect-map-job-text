@@ -5,13 +5,15 @@ import logging
 from abc import ABC
 from abc import abstractmethod
 from typing import List
+from urllib.request import Request as URI
 
-from dialect_map_io.data_output import TextFileWriter
+from dialect_map_io.handlers import TextFileHandler
+from dialect_map_io.handlers import init_handler_cls
 from dialect_map_schemas.routes import DM_PAPER_METADATA_ROUTE
 
 from job.files import FileSystemIterator
-from job.input import BaseMetadataSource
 from job.input import PDFCorpusSource
+from job.input import init_source_cls
 from job.models import ArxivMetadata
 from job.output import DialectMapOperator
 from job.output import LocalFileOperator
@@ -35,15 +37,15 @@ class BaseRoutine(ABC):
 class LocalTextRoutine(BaseRoutine):
     """Routine extracting local ArXiv corpus texts"""
 
-    def __init__(self, file_iter: FileSystemIterator, pdf_reader: PDFCorpusSource):
+    def __init__(self, file_iter: FileSystemIterator, pdf_source: PDFCorpusSource):
         """
         Initializes the local ArXiv corpus text extraction routine
         :param file_iter: Local file system iterator
-        :param pdf_reader: PDF file corpus source
+        :param pdf_source: PDF file corpus source
         """
 
         self.file_iter = file_iter
-        self.pdf_reader = pdf_reader
+        self.pdf_source = pdf_source
 
     def run(self, destination_path: str) -> None:
         """
@@ -57,11 +59,11 @@ class LocalTextRoutine(BaseRoutine):
             output_path = f"{destination_path}/{path_diff}"
 
             # Initialize TXT file writer
-            txt_writer = TextFileWriter()
-            txt_operator = LocalFileOperator(output_path, txt_writer)
+            txt_handler = TextFileHandler()
+            txt_operator = LocalFileOperator(output_path, txt_handler)
 
             # Save paper contents
-            txt_content = self.pdf_reader.extract_txt(file_path)
+            txt_content = self.pdf_source.extract_txt(file_path)
             txt_operator.write_text(file_name, txt_content)
 
 
@@ -95,13 +97,18 @@ class MetadataRoutine(BaseRoutine):
 
         return metadata_records
 
-    def add_source(self, source: BaseMetadataSource) -> None:
+    def add_sources(self, metadata_uris: List[str]) -> None:
         """
         Adds an ArXiv metadata source to the list of sources
-        :param source: metadata source to extract ArXiv metadata from
+        :param metadata_uris: URIs to extract ArXiv metadata from
         """
 
-        self.sources.append(source)
+        for uri in metadata_uris:
+            uri_obj = URI(uri)
+            handler = init_handler_cls(uri_obj)
+            source = init_source_cls(uri_obj, handler)
+
+            self.sources.append(source)
 
     def run(self, *args) -> None:
         """

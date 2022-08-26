@@ -6,19 +6,12 @@ from click import Context
 from click import Path
 
 from dialect_map_gcp.auth import OpenIDAuthenticator
-from dialect_map_io.data_input import ArxivInputAPI
-from dialect_map_io.data_input import LocalDataFile
-from dialect_map_io.data_output import RestOutputAPI
-from dialect_map_io.parsers import JSONDataParser
-from dialect_map_io.parsers import PDFTextParser
+from dialect_map_io.handlers import DialectMapAPIHandler
+from dialect_map_io.handlers import PDFFileHandler
 
 from job.files import FileSystemIterator
-from job.input import ApiMetadataSource
-from job.input import FileMetadataSource
 from job.input import PDFCorpusSource
 from job.output import DialectMapOperator
-from job.parsers import FeedMetadataParser
-from job.parsers import JSONMetadataParser
 from logs import setup_logger
 from routines import LocalTextRoutine
 from routines import MetadataRoutine
@@ -71,10 +64,10 @@ def text_job(input_files_path: str, output_files_path: str):
     files_iterator = FileSystemIterator(input_files_path, ".pdf")
 
     # Initialize PDF reader
-    pdf_parser = PDFTextParser()
-    pdf_reader = PDFCorpusSource(pdf_parser)
+    pdf_handler = PDFFileHandler()
+    pdf_source = PDFCorpusSource(pdf_handler)
 
-    routine = LocalTextRoutine(files_iterator, pdf_reader)
+    routine = LocalTextRoutine(files_iterator, pdf_source)
     routine.run(output_files_path)
 
 
@@ -90,14 +83,12 @@ def text_job(input_files_path: str, output_files_path: str):
     ),
 )
 @click.option(
-    "--metadata-file-path",
-    help="JSON metadata file local path",
+    "--input-metadata-uris",
+    help="URIs to the paper metadata sources",
+    default=["https://export.arxiv.org/api"],
     required=False,
-    type=Path(
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-    ),
+    multiple=True,
+    type=str,
 )
 @click.option(
     "--gcp-key-path",
@@ -110,16 +101,16 @@ def text_job(input_files_path: str, output_files_path: str):
     ),
 )
 @click.option(
-    "--api-url",
+    "--output-api-url",
     help="Private API base URL",
     required=True,
     type=str,
 )
 def metadata_job(
     input_files_path: str,
-    metadata_file_path: str,
+    input_metadata_uris: list,
     gcp_key_path: str,
-    api_url: str,
+    output_api_url: str,
 ):
     """Iterates on all PDF papers and send their metadata to the specified API"""
 
@@ -127,23 +118,13 @@ def metadata_job(
     file_iter = FileSystemIterator(input_files_path, ".pdf")
 
     # Initialize API controller
-    api_auth = OpenIDAuthenticator(gcp_key_path, api_url)
-    api_conn = RestOutputAPI(api_url, api_auth)
+    api_auth = OpenIDAuthenticator(gcp_key_path, target_url=output_api_url)
+    api_conn = DialectMapAPIHandler(api_auth, base_url=output_api_url)
     api_ctl = DialectMapOperator(api_conn)
 
-    # Initialize metadata sources
-    file_source = FileMetadataSource(
-        LocalDataFile(metadata_file_path, JSONDataParser()),
-        JSONMetadataParser(),
-    )
-    api_source = ApiMetadataSource(
-        ArxivInputAPI("https://export.arxiv.org/api"),
-        FeedMetadataParser(),
-    )
-
+    # Initialize and run routine
     routine = MetadataRoutine(file_iter, api_ctl)
-    routine.add_source(file_source)
-    routine.add_source(api_source)
+    routine.add_sources(input_metadata_uris)
     routine.run()
 
 
