@@ -36,14 +36,15 @@ def init_source_cls(uri: URI, handler: BaseHandler) -> BaseMetadataSource:
     :return: source class
     """
 
-    if uri.type in {"file"}:
-        classes = SOURCE_TYPE_MAPPINGS[SOURCE_TYPE_FILE]
-        kwargs = {"file_path": uri.selector}
-    elif uri.type in {"http", "https"}:
-        classes = SOURCE_TYPE_MAPPINGS[SOURCE_TYPE_API]
-        kwargs = {}
-    else:
-        raise ValueError("Source not specified for the provided URI")
+    match uri.type:
+        case "file":
+            classes = SOURCE_TYPE_MAPPINGS[SOURCE_TYPE_FILE]
+            kwargs = {"file_path": uri.selector}
+        case "http" | "https":
+            classes = SOURCE_TYPE_MAPPINGS[SOURCE_TYPE_API]
+            kwargs = {}
+        case _:
+            raise ValueError("Source not specified for the provided URI")
 
     handler_cls = classes["handler_cls"]
     parser_cls = classes["parser_cls"]
