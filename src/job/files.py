@@ -6,9 +6,8 @@ import os
 from pathlib import Path
 from typing import Generator
 from typing import List
-from typing import Union
 
-StrPath = Union[str, Path]
+StrPath = str | Path
 
 
 class FileSystemIterator:
