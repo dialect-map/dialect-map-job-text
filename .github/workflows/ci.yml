@@ -30,7 +30,7 @@ jobs:
     - name: "Set up Python"
       uses: actions/setup-python@v4
       with:
-        python-version: "3.9"
+        python-version: "3.10"
     - name: "Set up private packages SSH keys"
       uses: webfactory/ssh-agent@v0.5.4
       with:
@@ -50,16 +50,13 @@ jobs:
   test:
     needs: [lint]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10"]
     steps:
     - name: "Set up GitHub Actions"
       uses: actions/checkout@v3
     - name: "Set up Python"
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.10"
     - name: "Set up private packages SSH keys"
       uses: webfactory/ssh-agent@v0.5.4
       with:
