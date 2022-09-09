@@ -4,5 +4,5 @@ pytz==2021.3
 feedparser==6.0.8
 
 # Private packages
-git+ssh://git@github.com/dialect-map/dialect-map-io.git@v0.5.1#egg=dialect-map-io[gcp]
+git+ssh://git@github.com/dialect-map/dialect-map-io.git@v0.5.2#egg=dialect-map-io[gcp]
 git+ssh://git@github.com/dialect-map/dialect-map-schemas.git@v0.2.1#egg=dialect-map-schemas
