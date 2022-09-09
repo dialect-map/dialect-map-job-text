@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from urllib.request import Request as URI
+from urllib.parse import ParseResult
 
 from dialect_map_io import BaseHandler
 from dialect_map_io import ArxivAPIHandler
@@ -28,23 +28,23 @@ SOURCE_TYPE_MAPPINGS = {
 }
 
 
-def init_source_cls(uri: URI, handler: BaseHandler) -> BaseMetadataSource:
+def init_source_cls(url: ParseResult, handler: BaseHandler) -> BaseMetadataSource:
     """
-    Returns a source class depending on the provided URI
-    :param uri: URI to get the source class from
+    Returns a source class depending on the provided URL
+    :param url: parsed URL to initialize the source for
     :param handler: handler to get the metadata from
-    :return: source class
+    :return: source instance
     """
 
-    match uri.type:
+    match url.scheme:
         case "file":
             classes = SOURCE_TYPE_MAPPINGS[SOURCE_TYPE_FILE]
-            kwargs = {"file_path": uri.selector}
+            kwargs = {"file_path": url.path}
         case "http" | "https":
             classes = SOURCE_TYPE_MAPPINGS[SOURCE_TYPE_API]
             kwargs = {}
         case _:
-            raise ValueError("Source not specified for the provided URI")
+            raise ValueError("Source not specified for the provided URL")
 
     handler_cls = classes["handler_cls"]
     parser_cls = classes["parser_cls"]

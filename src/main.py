@@ -83,8 +83,8 @@ def text_job(input_files_path: str, output_files_path: str):
     ),
 )
 @click.option(
-    "--input-metadata-uris",
-    help="URIs to the paper metadata sources",
+    "--input-metadata-urls",
+    help="URLs to the paper metadata sources",
     default=["https://export.arxiv.org/api"],
     required=False,
     multiple=True,
@@ -108,7 +108,7 @@ def text_job(input_files_path: str, output_files_path: str):
 )
 def metadata_job(
     input_files_path: str,
-    input_metadata_uris: list,
+    input_metadata_urls: list,
     gcp_key_path: str,
     output_api_url: str,
 ):
@@ -124,7 +124,7 @@ def metadata_job(
 
     # Initialize and run routine
     routine = MetadataRoutine(file_iter, api_ctl)
-    routine.add_sources(input_metadata_uris)
+    routine.add_sources(input_metadata_urls)
     routine.run()
 
 

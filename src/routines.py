@@ -5,7 +5,7 @@ import logging
 from abc import ABC
 from abc import abstractmethod
 from typing import List
-from urllib.request import Request as URI
+from urllib.parse import urlparse
 
 from dialect_map_io.handlers import TextFileHandler
 from dialect_map_io.handlers import init_handler_cls
@@ -97,16 +97,16 @@ class MetadataRoutine(BaseRoutine):
 
         return metadata_records
 
-    def add_sources(self, metadata_uris: List[str]) -> None:
+    def add_sources(self, metadata_urls: List[str]) -> None:
         """
         Adds an ArXiv metadata source to the list of sources
-        :param metadata_uris: URIs to extract ArXiv metadata from
+        :param metadata_urls: URLs to extract ArXiv metadata from
         """
 
-        for uri in metadata_uris:
-            uri_obj = URI(uri)
-            handler = init_handler_cls(uri_obj)
-            source = init_source_cls(uri_obj, handler)
+        for url in metadata_urls:
+            url_obj = urlparse(url)
+            handler = init_handler_cls(url_obj)
+            source = init_source_cls(url_obj, handler)
 
             self.sources.append(source)
 
