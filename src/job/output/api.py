@@ -47,7 +47,7 @@ class DialectMapOperator:
             logger.error(f"Error: {error}")
             raise
 
-    def create_record(self, record_route: APIRoute, record_data: dict) -> None:
+    async def create_record(self, record_route: APIRoute, record_data: dict) -> None:
         """
         Performs the creation of a record on a REST API
         :param record_data: data record
@@ -62,7 +62,7 @@ class DialectMapOperator:
             record_schema.dump(record_data),
         )
 
-    def archive_record(self, record_route: APIRoute, record_data: dict) -> None:
+    async def archive_record(self, record_route: APIRoute, record_data: dict) -> None:
         """
         Performs the archival of a record on a REST API
         :param record_data: data record

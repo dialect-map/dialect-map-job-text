@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import asyncio
 import logging
 
 from abc import ABC
@@ -81,6 +82,19 @@ class MetadataRoutine(BaseRoutine):
         self.api_controller = api_ctl
         self.sources = []  # type: ignore
 
+    async def _dispatch_records(self, records: List[ArxivMetadata]) -> None:
+        """
+        Dispatch metadata records to the destination API
+        :param records: Paper metadata records
+        """
+
+        func = self.api_controller.create_record
+        route = DM_PAPER_METADATA_ROUTE
+
+        async with asyncio.TaskGroup() as group:
+            for record in records:
+                group.create_task(func(route, record.paper_metadata))
+
     def _get_metadata_records(self, paper_id: str) -> List[ArxivMetadata]:
         """
         Gets the metadata records from the sources given an ArXiv paper ID
@@ -124,8 +138,4 @@ class MetadataRoutine(BaseRoutine):
                 logger.warning(f"Metadata for paper {file_name} not found")
                 continue
 
-            for record in records:
-                self.api_controller.create_record(
-                    DM_PAPER_METADATA_ROUTE,
-                    record.paper_metadata,
-                )
+            asyncio.run(self._dispatch_records(records))
