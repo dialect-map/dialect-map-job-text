@@ -1,7 +1,7 @@
 # Public packages
 black==23.1.0
 isort==5.11.3
-mypy==0.990
+mypy==0.991
 
 # Typing packages
 types-pytz~=2021.3.0
