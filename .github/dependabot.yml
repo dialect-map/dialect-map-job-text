@@ -19,9 +19,11 @@ updates:
       # Ignore auto-updates on SemVer major releases
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-      # Ignore auto-updates on pytz (they must be updated together)
-      - dependency-name: "pytz"
-      - dependency-name: "types-pytz"
     allow:
       - dependency-type: development
       - dependency-type: production
+    groups:
+      pytz-dependencies:
+        patterns:
+          - "pytz"
+          - "types-pytz"
