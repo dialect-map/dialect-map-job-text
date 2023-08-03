@@ -4,6 +4,7 @@ import logging
 import re
 
 from typing import List
+from typing import override
 from urllib import parse
 
 from feedparser import FeedParserDict
@@ -82,6 +83,7 @@ class FeedMetadataParser(BaseMetadataParser):
 
         return paper_doi
 
+    @override
     def parse_body(self, feed: str) -> List[ArxivMetadata]:
         """
         Parses the body section of a given feed API result

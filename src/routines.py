@@ -6,6 +6,7 @@ import logging
 from abc import ABC
 from abc import abstractmethod
 from typing import List
+from typing import override
 from urllib.parse import urlparse
 
 from dialect_map_io.handlers import TextFileHandler
@@ -48,6 +49,7 @@ class LocalTextRoutine(BaseRoutine):
         self.file_iter = file_iter
         self.pdf_source = pdf_source
 
+    @override
     def run(self, destination_path: str) -> None:
         """
         Main routine to extract ArXiv corpus text and store it locally
@@ -124,6 +126,7 @@ class MetadataRoutine(BaseRoutine):
 
             self.sources.append(source)
 
+    @override
     def run(self, *args) -> None:
         """
         Main routine to extract ArXiv corpus metadata and send it to a REST API

@@ -5,6 +5,7 @@ import re
 
 from datetime import datetime
 from typing import List
+from typing import override
 
 import pytz
 
@@ -92,6 +93,7 @@ class JSONMetadataParser(BaseMetadataParser):
 
         return paper_doi
 
+    @override
     def parse_body(self, entry: dict) -> List[ArxivMetadata]:
         """
         Parses the metadata fields of a given metadata JSON entry
