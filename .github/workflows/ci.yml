@@ -40,7 +40,7 @@ jobs:
     - name: "Install Python dependencies"
       run: |
         pip install --no-cache-dir --upgrade pip setuptools wheel
-        pip install --no-cache-dir --requirement reqs/requirements-prod.txt
+        pip install --no-cache-dir --requirement reqs/requirements-main.txt
         pip install --no-cache-dir --requirement reqs/requirements-lint.txt
         pip list
     - name: "Check format"
@@ -66,7 +66,7 @@ jobs:
     - name: "Install Python dependencies"
       run: |
         pip install --no-cache-dir --upgrade pip setuptools wheel
-        pip install --no-cache-dir --requirement reqs/requirements-prod.txt
+        pip install --no-cache-dir --requirement reqs/requirements-main.txt
         pip install --no-cache-dir --requirement reqs/requirements-test.txt
         pip list
     - name: "Run tests"
