@@ -3,6 +3,7 @@
 import logging
 
 from typing import List
+from typing import override
 from dialect_map_io import JSONFileHandler
 
 from .base import BaseMetadataSource
@@ -36,6 +37,7 @@ class JSONMetadataSource(BaseMetadataSource):
 
         return {json["id"]: json for json in self.handler.read_items(file_path)}
 
+    @override
     def get_metadata(self, paper_id: str) -> List[ArxivMetadata]:
         """
         Retrieves the complete metadata of the multiple ArXiv paper versions

@@ -3,6 +3,7 @@
 import logging
 
 from typing import List
+from typing import override
 from dialect_map_io import ArxivAPIHandler
 
 from .base import BaseMetadataSource
@@ -25,6 +26,7 @@ class ArxivMetadataSource(BaseMetadataSource):
         self.handler = handler
         self.parser = parser
 
+    @override
     def get_metadata(self, paper_id: str) -> List[ArxivMetadata]:
         """
         Retrieves the complete metadata of the multiple ArXiv paper versions

@@ -30,7 +30,7 @@ jobs:
     - name: "Set up Python"
       uses: actions/setup-python@v4
       with:
-        python-version: "3.11"
+        python-version: "3.12"
     - name: "Set up private packages SSH keys"
       uses: webfactory/ssh-agent@v0.6.0
       with:
@@ -56,7 +56,7 @@ jobs:
     - name: "Set up Python"
       uses: actions/setup-python@v4
       with:
-        python-version: "3.11"
+        python-version: "3.12"
     - name: "Set up private packages SSH keys"
       uses: webfactory/ssh-agent@v0.6.0
       with:
