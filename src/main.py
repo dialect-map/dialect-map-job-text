@@ -17,7 +17,7 @@ from routines import LocalTextRoutine
 from routines import MetadataRoutine
 
 
-@click.group(cls=None)
+@click.group()
 @click.option(
     "--log-level",
     envvar="DIALECT_MAP_LOG_LEVEL",
