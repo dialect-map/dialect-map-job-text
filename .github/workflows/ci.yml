@@ -32,7 +32,7 @@ jobs:
       with:
         python-version: "3.12"
     - name: "Set up private packages SSH keys"
-      uses: webfactory/ssh-agent@v0.6.0
+      uses: webfactory/ssh-agent@v0.8.0
       with:
         ssh-private-key: |
           ${{ secrets.DM_IO_SSH_KEY }}
@@ -58,7 +58,7 @@ jobs:
       with:
         python-version: "3.12"
     - name: "Set up private packages SSH keys"
-      uses: webfactory/ssh-agent@v0.6.0
+      uses: webfactory/ssh-agent@v0.8.0
       with:
         ssh-private-key: |
           ${{ secrets.DM_IO_SSH_KEY }}
